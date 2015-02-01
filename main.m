@@ -9,7 +9,7 @@ tic
 p.num =  [0,1,0]; p.den = [1,-1.8,0.81];
 % Time
 N = 50;         % # samples
-n = 0:N-1;      % time axis
+n = 0:(N-1);      % time axis
 
 % ILC parameters
 Q = 1; L = 0.5; % Q filter and  Learning Filter

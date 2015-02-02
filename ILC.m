@@ -5,15 +5,18 @@ function [u,e] = ILC(num,den,Q,L,yd,iter,noise)
 % with the error(j) = y(j) - yd 
 % y(j) is the response of the systen P(z) = num/den of input u(j)
 % iter : number of iterations the algorithm
-% noise( boolean ) : add noise with  average = 0 and std = 0.01
+% noise( boolean ) : add repeating noise with  average = 0 and std = 0.01
 
     N = length(yd);
     n = 0:N-1; 
     figure; hold on;
     title('Evolution of error'); xlabel('Iteration'); xlim([0 iter]);
     u = zeros(N,1); % init
+   
+    d = noise*0.01*randn(N,1); % repeating noise
+    
     for j = 0:iter
-        y = filter(num,den,u)+0.01*noise*randn(N,1); % get response from input
+        y = filter(num,den,u)+d; % get response from input
         e  = yd-y;                % compute error
         u(1:N-1) = Q*( u(1:N-1) + L*e(2:N) );         % update input
         % plot norm of error

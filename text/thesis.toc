@@ -1,4 +1,4 @@
 \contentsline {chapter}{\numberline {1}Introduction}{2}{chapter.1}
 \contentsline {section}{\numberline {1.1}Why Digital Predistortion?}{2}{section.1.1}
 \contentsline {section}{\numberline {1.2}Current Techniques of DPD}{2}{section.1.2}
-\contentsline {section}{\numberline {1.3}Using for ILC for DPD}{2}{section.1.3}
+\contentsline {section}{\numberline {1.3}Using ILC for DPD}{2}{section.1.3}

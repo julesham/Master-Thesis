@@ -1,0 +1,4 @@
+** 11 Feb 2014
+* Simulation of ILC on NL system
+    - Got ILC converging when system = BLA (L = 0.5)
+    - Use same ILC on nonlinear system, still convergence!

@@ -1,8 +1,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Robust method for measuring the BLA, its variance, the noise variance     %%
-% and the variance of the stochastic nonlinear distortions from noisy       %%
-% input/output measurements using random phase multisines                   %%
+%  ILC on a nonlinear system                                                %%
 %                                                                           %%
 % Illustrated on a continuous-time Wiener-Hammerstein system consisting     %%
 % of the cascade of                                                         %%
@@ -11,8 +9,6 @@
 %   2. a static nonlinear function:     5*tanh(x/5)                         %%
 %   3. a first order system:            G2(s) = 1/(1 + Tau*s)               %%
 %                                                                           %%
-% Rik Pintelon                                                              %% 
-% December 3, 2007                                                          %%
 %                                                                           %% 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -27,7 +23,7 @@ close all;
 
 % second order system G1(s)
 f0 = 1000;								% resonance frequency at 1 kHz
-Q = 10;									% quality factor
+Q = 3;									% quality factor
 
 % first order system G2(s)
 Tau = 1/(2*pi*300);						% 3 dB point at 300 Hz
@@ -49,8 +45,7 @@ fs = 5e4;								% 50 kHz
 % Definition Nonlinear characteristic %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-NLScaling = 5;
-
+NLScaling = 20;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Definition random phase multisine experiment % 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -76,8 +71,8 @@ Yall = zeros(M, P, F);                  % output spectrum for all realisations a
 % Disturbing input/output noise %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-stdu = rms/10;
-stdy = sqrt(N/2/F)/50;                   % output noise standard deviation
+stdu = 0*rms/10;
+stdy = 0*sqrt(N/2/F)/50;                   % output noise standard deviation
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -143,16 +138,18 @@ end
 % signal is available
 [G_ref, Y_ref, U_ref, CYU_ref] = Robust_NL_Anal(Yall, Uall, Rall);
 
-% plot(freq, db(G_ref.mean), 'k', freq, db(G_ref.stdNL), 'r', freq, db(G_ref.stdn), 'g', freq, db(G_ref.stds), 'b')
-% xlabel('Frequency (Hz)')
-% ylabel('G_{BLA}(j\omega_k) (dB)')
-% title('With reference signal: total variance (red), noise variance (green), stochastic NL distortion (blue)')
+ plot(freq, db(G_ref.mean), 'k', freq, db(G_ref.stdNL), 'r', freq, db(G_ref.stdn), 'g', freq, db(G_ref.stds), 'b')
+ xlabel('Frequency (Hz)'); ylabel('G_{BLA}(j\omega_k) (dB)');title('With reference signal: total variance (red), noise variance (green), stochastic NL distortion (blue)');
 
 
 %% ILC
 
-    u_ref = CalcMultisine(ExcitedHarm, N).';     
-    y_ref = 1*u_ref; % we want a perfect gain
+    u_ref = CalcMultisine(ExcitedHarm, N).';    
+    
+    U = fft(u_ref);
+    Y_ref = zeros(size(U));
+    Y_ref(1:F) = G_ref.mean.*U(1:F);
+    y_ref = 2*real(ifft(Y_ref)); % we want a perfect gain
     
     uj = zeros(size(y_ref));
     Yj = zeros(size(y_ref));
@@ -164,7 +161,7 @@ end
             [yj, z] = WH_NL(uj, Gfirst, 'tanh', NLScaling, Gsecond);
             % Compute error
             e = y_ref-yj;
-                meanError(i) =sum(e.^2)/N;
+            meanError(i) = mean(e.^2);
             % ILC rule : u_j+1 = u_j + G_BLA^-1*ej;
             E = fft(e);
             dU = zeros(1,N);
@@ -194,3 +191,17 @@ end
             title('y_{desired} - y_j')
 
             fprintf('L = %g \nMSE : %g dB \n',L,db(meanError(end)));
+    
+        figure;
+
+        subplot(211); hold all;
+            i = 50:250;
+            plot(db(fft(y_ref)),'-');
+            plot(db(fft(yj)),'x');
+            xlabel('freq'); ylabel('Amplitude')
+            legend('y_{ref}','yj')
+            title('Comparison y_d and y_{ref} ')
+            
+        subplot(212);
+            plot(db(fft(e)),'x'); xlabel('freq'); ylabel('error')
+            title('y_{desired} - y_j')              

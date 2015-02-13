@@ -151,7 +151,7 @@ end
     Y_ref(1:F) = G_ref.mean.*U(1:F);
     y_ref = 2*real(ifft(Y_ref)); % we want a perfect gain
     
-    uj = zeros(size(y_ref));
+    uj = zeros(1,N);
     Yj = zeros(size(y_ref));
     invG = G_ref.mean.^-1;
     iterationsILC = 30;

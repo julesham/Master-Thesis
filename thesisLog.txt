@@ -1,8 +1,10 @@
-** 11 Feb 2014
+** 11 Feb 2015
 * Simulation of ILC on NL system
     - Got ILC converging when system = BLA (L = 0.5)
     - Use same ILC on nonlinear system, still convergence!
-** 12 Feb 2014
+** 12 Feb 2015
     - Try easier system, build up. 1) Static NL 2) Small Dynamics 3) Full W-H
     - Work in Z - domain
     - use as SysRef = BLA -> better performances
+** 12 Feb 2015 (part 2)
+    - implemented as discrete time -> NL dist even if only linear filter?

@@ -8,3 +8,9 @@
     - use as SysRef = BLA -> better performances
 ** 12 Feb 2015 (part 2)
     - implemented as discrete time -> NL dist even if only linear filter?
+** 13 Feb 2015
+    - Problem was in transients removal -> fixed
+    - creation of 2 test systems (SNL and WH)
+    -  uj = Q*(uj + e); works better for SNL, but fails on WH
+** 17 Feb 2015
+    - Feedback without BLA works better -> because BLA is only defined on little frequency band, cannot compensate!

@@ -9,7 +9,7 @@ clear; close all; clc; tic;
 %%%
 % Definition of time and frequency
 %%%
-N = 2^12;
+N = 2^14;
 time = 0:N-1;
 normFreq = time/N;
 normAngFreq = 2*pi*time;
@@ -20,16 +20,16 @@ normAngFreq = 2*pi*time;
 %  -> G1 --> NL --> G2 -> 
 %%%
 
-[b1,a1] = cheby1(2,1,1/15); % G1:  3th order , 1 dB ripple , 1/15 normalised freq
-NL = '5*tanh(x/5)';
-[b2,a2] = cheby1(1,1,1/20); % G2:  1th order , 1 dB ripple , 1/20 normalised freq
+% DUT = 'SYS_WH';
+ DUT = 'SYS_SNL';
 
 %% Measure Of BLA
 
 %%%%
 % Design of Input Signal
 %%%%
-fmax = 1/10; % Excited frequency / f_nyquist
+fmax = 1/20; % Excited frequency / f_nyquist
+
 F = floor(fmax*N/2);
 ExcitedHarm = 1:F;
 r = CalcMultisine(ExcitedHarm, N);
@@ -40,10 +40,11 @@ R = fft(r)/sqrt(N);
 % subplot(212); plot(2*normFreq,db(R),'x'); xlabel('frequency (x\pi rad/sample)')
 
 %%%
-% Parameters experiment
+% Parameters BLA Measurement
 %%%
+T = 1;                                  % Transients
 P = 2;                                  % number of consecutive periods multisine
-M = 25;                                 % number of independent repeated experiments
+M = 100;                                 % number of independent repeated experiments
 Rall = zeros(M, F);                     % reference spectrum for all realisations
 Uall = zeros(M, P, F);                  % input spectrum for all realisations and all periods
 Yall = zeros(M, P, F);                  % output spectrum for all realisations and all periods
@@ -51,34 +52,46 @@ Yall = zeros(M, P, F);                  % output spectrum for all realisations a
 %%%
 % Measure BLA
 %%%
-for mm = 1:M
-    r = CalcMultisine(ExcitedHarm, N); % Make a new MS realization 
-    
-    R = fft(r)./sqrt(N);
-    Rall(mm,:) = R(2:F+1);
-    u = r;
-    x = filter(b1,a1,u);    %
-    z = eval(NL);           % Pass it trough system (noiseless)
-    y = filter(b2,a2,z);    %
+% 
+% for mm = 1:M
+%     r = CalcMultisine(ExcitedHarm, N); % Make a new MS realization 
+%     R = fft(r)./sqrt(N);
+%     Rall(mm,:) = R(2:F+1);
+%     
+%     u = repmat(r,T+P,1);    % make multiple periods
+%     y = feval(DUT,u);          % pass trough system
+% 
+%     u = u(T*N+1:end);       % remove transients
+%     y = y(T*N+1:end);       
+%     
+%     u = reshape(u,N,[]);
+%     y = reshape(y,N,[]);
+%     
+%     % Check transient removal   
+%     diff_periods = zeros(N,1);
+%     for pp = 1:P-1;
+%         diff_periods = ( y(:,pp+1)-y(:,pp) )/P  + diff_periods; 
+%     end
+%     meanPeriodError = mean(diff_periods.^2);
+%     
+%     Y0 = fft(y)./sqrt(N);
+%     U0 = fft(u)./sqrt(N);
+%     
+% 
+%     Uall(mm,:,:) = U0(2:F+1,:).';
+%     Yall(mm,:,:) = Y0(2:F+1,:).';
+% 
+% end
+% [BLA,Y,~,~] = Robust_NL_Anal(Yall, Uall,Rall);
 
-    Y0 = fft(y)./sqrt(N);
-    U0 = fft(u)./sqrt(N);
-    
-    for pp = 1:P
-        Uall(mm,pp,:) = U0(2:F+1);
-        Yall(mm,pp,:) = Y0(2:F+1);
-    end
-    
-end
-[BLA,Y,U,~] = Robust_NL_Anal(Yall, Uall,Rall);
-Plot_Robust_NL_Anal(BLA,Y,U,ExcitedHarm);
-% figure;
-% hold all;
-% plot(ExcitedHarm/N,db(BLA.mean),'kx');
-% plot(ExcitedHarm/N,db(BLA.stds),'bx');
-% plot(ExcitedHarm/N,db(BLA.stdNL),'rx');
-% plot(ExcitedHarm/N,db(BLA.stdn),'gx');
-% legend('BLA','NL w.r.t one real','total variance','noise variance','location','Best')
+BLA = extractionBLA(DUT,ExcitedHarm,N,T,P,M);
+figure;
+hold all;
+plot(ExcitedHarm/N,db(BLA.mean),'kx');
+plot(ExcitedHarm/N,db(BLA.stds),'bx');
+plot(ExcitedHarm/N,db(BLA.stdNL),'rx');
+plot(ExcitedHarm/N,db(BLA.stdn),'gx');
+legend('BLA','NL w.r.t one real','total variance','noise variance','location','Best')
 
 %% ILC
 
@@ -92,14 +105,12 @@ Plot_Robust_NL_Anal(BLA,Y,U,ExcitedHarm);
     uj = u_ref; % first try
     invG = BLA.mean.^-1;
     
-    iterationsILC = 30;
+    iterationsILC = 100;
     meanError = zeros(1,iterationsILC);
     
     for i = 1:iterationsILC
     
-            x = filter(b1,a1,uj);   %
-            z = eval(NL);           % Pass it trough system (noiseless)
-            yj = filter(b2,a2,z);   %
+            yj = feval(DUT,uj);
             % Compute error
             e = y_ref-yj;
             meanError(i) = mean(e.^2);
@@ -112,6 +123,7 @@ Plot_Robust_NL_Anal(BLA,Y,U,ExcitedHarm);
             Q  = 1;
             L =  1;
             uj = Q*(uj + L*du);
+            %uj = Q*(uj + e);
     end
     
 figure;
@@ -130,7 +142,6 @@ subplot(313);
     plot(e,'x'); xlabel('time'); ylabel('error');
     title('y_d - y_j');
 
-    fprintf('L = %g \nMSE : %g dB \n',L,db(meanError(end)));
 
 figure;
 
@@ -145,4 +156,8 @@ subplot(211); hold all;
 subplot(212);
     plot(db(fft(e)),'x'); xlabel('freq'); ylabel('error');
     title('y_d - y_j') ;
+    
+fprintf('System used = %s \n',DUT);  
+fprintf('MSE between periods of y = %g\n',meanPeriodError);  
+fprintf('L = %g \nMSE : %g dB \n',L,db(meanError(end)));  
 fprintf('Script ended in %g sec.\n',toc);

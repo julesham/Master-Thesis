@@ -14,3 +14,8 @@
     -  uj = Q*(uj + e); works better for SNL, but fails on WH
 ** 17 Feb 2015
     - Feedback without BLA works better -> because BLA is only defined on little frequency band, cannot compensate!
+    - Thank note : filterbuddy FTW.
+** 18 Feb 2015
+    - To get BLA out of the excited band 
+        1) parametric identification, but extrapolation is dangerous!
+        2) Tickler tone, use small signal outside of band of interest, small -> less NL dist

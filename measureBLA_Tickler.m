@@ -1,4 +1,4 @@
-function [BLA,Y_BLA,U_BLA,meanPeriodError] = measureBLA(DUT,ExcitedHarm,AmplitudeSpectrum,N,T,P,M)
+function [BLA,Y_BLA,U_BLA,meanPeriodError] = measureBLA_Tickler(DUT,ExcitedHarm,AmplitudeSpectrum,N,T,P,M)
 %% Measures the BLA of the DUT function the robust method (noiseless).
 %  * Syntax * 
 %
@@ -24,7 +24,7 @@ function [BLA,Y_BLA,U_BLA,meanPeriodError] = measureBLA(DUT,ExcitedHarm,Amplitud
 %   * meanPeriodError : error between periods, verify to steady state
 % See also ROBUST_NL_ANAL.
 
-F = length(ExcitedHarm);                % # of Excited Harmonics
+F = floor(N/2)-1;                % # of Excited Harmonics
 % Initialisation 
 Rall = zeros(M, F);                     % reference spectrum for all realisations
 Uall = zeros(M, P, F);                  % input spectrum for all realisations and all periods
@@ -32,6 +32,10 @@ Yall = zeros(M, P, F);                  % output spectrum for all realisations a
 
 for mm = 1:M
     r = CalcMultisine(ExcitedHarm, N,AmplitudeSpectrum); % Make a new MS realization with rms = 1
+%   ONLY DIFFERENCE WITH NO TICKLER   
+    tickler = 1*CalcMultisine( (max(ExcitedHarm)+1):floor(N/2)-1 , N);
+    r = r + tickler;
+%     
     R = fft(r)./sqrt(N);
     Rall(mm,:) = R(2:F+1);
     

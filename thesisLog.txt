@@ -19,3 +19,9 @@
     - To get BLA out of the excited band 
         1) parametric identification, but extrapolation is dangerous!
         2) Tickler tone, use small signal outside of band of interest, small -> less NL dist
+** 23 Feb 2015
+    - Two BLA measurements compared with eachother have a difference of -40 dB, because of stochastic MS
+        - adding a tickler should not increase this difference
+    - Energy in main freq band should be the same!
+** 24 Feb 2015
+    - Wanted output should also be passed trough BLAT

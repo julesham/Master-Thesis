@@ -10,9 +10,8 @@ clear; close all; clc; tic;
 N = 2^14;       % Datapoints
 % Definition of System
 
-DUT = 'SYS_WH';
-% DUT = 'SYS_SNL';
-% DUT = 'SYS_SNL';
+% DUT = 'SYS_WH';
+DUT = 'SYS_SNL';
 % DUT = 'SYS_W' 
 
 %% Measurement Of BLA
@@ -84,18 +83,22 @@ y_ref = 2*real(ifft(Y_ref)); % desired output
 % Test of stability
 z = exp(1j*2*pi*ExcitedHarmBLA/N);
 zLP = z.*L.*FRF.';
+stdF = BLA.stdNL.*Q*L; % standard deviation of Q(1-zLP)
 
 figure('name','ILC Stability and Performance');
 freq = ExcitedHarmBLA/N;
 subplot(2,2,1:2);
-hold all,plot(freq,db((1-zLP))); 
-plot([min(freq) max(freq)], db([1 1]/Q))
+hold all;
+plot(freq,db(Q*(1-zLP)));
 plot([min(freq) max(freq)], db([1 1]));
-legend('(1-zLP)','1/Q','0 dB line');
+plot(freq,db(stdF));
+legend('Q(1-zLP)','0 dB line');
+
+
 % Performance
 Einf = zeros(N,1);
 Einf(ExcitedHarmBLA+1) = (1-Q)/(1-Q*(1-zLP)).*Y_ref(ExcitedHarmBLA+1);
-subplot(2,2,3); plot((0:N-1)/N,db(Einf)); title('E_{\infty} ');
+subplot(2,2,3); stem((0:N-1)/N,db(Einf)); title('E_{\infty} ');
 subplot(2,2,4); plot(0:N-1,real(ifft(Einf))); title('e_{\infty} ');
 
 
@@ -157,14 +160,14 @@ subplot(211); hold all;
     title('Comparison y_d and y_j ');
 
 subplot(212);
-    plot(freq,db(fft(e)),'.'); xlabel('freq'); ylabel('error');
+    plot(freq,db(fft(e)/sqrt(N)),'.'); xlabel('freq'); ylabel('error');
     title('y_d - y_j') ;
  % Print Outputs  
    
 fprintf('System used = %s \n',DUT);  
 fprintf('MSE between periods of y = %E\n',transientError);  
 fprintf('L = %g \nMSE : %g dB \n',L,db(meanError(end)));  
-E = fft(e);
+E = fft(e)/sqrt(N);
 MSEBLA = mean( 2*real(ifft(E(ExcitedHarmBLA+1))).^2 );
-fprintf('MSE over BLA freq = %g \n',db(MSEBLA));
+fprintf('MSE over BLA freq = %g dB \n',db(MSEBLA));
 fprintf('Script ended in %g sec.\n',toc);

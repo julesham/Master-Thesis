@@ -25,3 +25,6 @@
     - Energy in main freq band should be the same!
 ** 24 Feb 2015
     - Wanted output should also be passed trough BLAT
+** 02 Mar 2015
+    - Deprioritize the complete frequency band compensation, focussing on band of interest
+    - Added noise, affects performance but not stability , maybe because of low-pass effect of BLA only being defined in BOI and zero outside of this.

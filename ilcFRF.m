@@ -8,11 +8,12 @@ meanError = zeros(1,iterationsILC);
 uj = u0;
 yj = feval(DUT,u0);
 for i = 1:iterationsILC
+        clc;
         fprintf('%g %%\n',i/iterationsILC*100);  
-        yj = feval(DUT,uj);
         % Compute error
         e = y_ref-yj;
         meanError(i) = mean(e.^2);
+        
         % ILC rule : u_j+1 = u_j + G_BLA^-1*ej;
         E = fft(e);
         dU = zeros(1,N);

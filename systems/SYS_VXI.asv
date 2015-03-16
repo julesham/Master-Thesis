@@ -5,7 +5,7 @@ function [y,u] = SYS_VXI(r)
 
 % Adapt Signal
 signalRMS = rms(r);
-signal = r./max(max(abs(r))); % The input should be scaled to be between (-1, 1)
+signal = r./max(abs(r),[],); % The input should be scaled to be between (-1, 1)
 
 
 % Measurement

@@ -1,16 +1,20 @@
-load('../measurement8.mat')
+load('measurement8.mat','Yall','Rall','Uall','ExcitedHarmBLA','N');
 size(Yall)
 size(Rall)
-YY=squeeze(Yall(:,1,:));
+YY=squeeze(Yall(:,1,:)); % take one period
 size(YY)
-YR = YY./Rall;
-YRmean=mean(YR,1);
-YRstd=std(YR,[],1);
+YR = YY./Rall; % Project on reference
+YRmean=mean(YR,1); % Take mean along realizations
+YRstd=std(YR,[],1); % idem for std
 % figure;plot(db([YRmean.', YRstd.']));shg
 % figure;plot(db(YR.'));shg
-figure;plot(ExcitedHarmBLA/N,unwrap(angle(YR.'))); title('Output Phase')
-% disp(pi*250/2048)
+disp(pi*250/2048)
 
 UU=squeeze(Uall(:,1,:));
 UR = UU./Rall;
-figure;plot(ExcitedHarmBLA/N,unwrap(angle(UR.'))); title('Input Phase')
+
+% figure;plot(ExcitedHarmBLA/N,angle(YR.')/pi); title('Output Phase'); ylabel('x\pi radians')
+figure;plot(ExcitedHarmBLA/N,angle(UR.')/pi); title('Input Phase'); ylabel('x\pi radians')
+figure;plot(ExcitedHarmBLA/N,angle( ( UR(1,:)./UR(2,:) ).' ),'x'); ylabel('x\pi radians')
+
+polyfit(ExcitedHarmBLA/N*2*pi,angle( ( UR(1,:)./UR(2,:) ).' ),1)

@@ -1,4 +1,4 @@
-function [Uall,Yall,Rall,U_ref_all,transientError,BLA_Measurements] = measureBLA(DUT,ExcitedHarm,rms,N,T,P,M)
+function [Uall,Yall,Rall,U_ref_all,transientError] = measureBLA(DUT,ExcitedHarm,rms,N,T,P,M)
 %% Measures the BLA of the DUT function the robust method (noiseless).
 %  * Syntax * 
 %
@@ -30,7 +30,7 @@ Rall = zeros(M, F);                     % reference spectrum for all realisation
 Uall = zeros(M, P, F);                  % input spectrum for all realisations and all periods
 Yall = zeros(M, P, F);                  % output spectrum for all realisations and all periods
 U_ref_all = zeros(M, P, F);             % Total Reference Spectrum
-delay = 0;
+
 BLA_Measurements.u = zeros(M, P, N);
 BLA_Measurements.y = zeros(M, P, N);
 BLA_Measurements.r = zeros(M,N);
@@ -43,7 +43,6 @@ for mm = 1:M
     
     rr = repmat(r,T+P,1);           % make multiple periods , transient + measurement periods
     [y,u] = feval(DUT,rr);          % pass trough system (can add noise!)
-
     
     figure(h);
     subplot(3,1,1); plot(r); title('Reference');
@@ -53,46 +52,9 @@ for mm = 1:M
     u = u(T*N+1:end);       % remove transients
     y = y(T*N+1:end);  
 
-     
-    
-    
-    
     u = reshape(u,N,P);     % organise by periods
     y = reshape(y,N,P);
     
-    %%%
-    % Delay Compensation
-    %%%
-    if strcmp(DUT,'SYS_VXI')
-        if mm == 1
-            
-            u_first = u;
-            r_first = r;
-            
-        else
-            UR_prev = fft(u_first(:,1))./fft(r_first);
-            UR = fft(u(:,1))./fft(r);
-            
-            UR_prev = UR_prev(ExcitedHarm+1);
-            UR = UR(ExcitedHarm+1);
-            
-            phase_Ref_Input1 = unwrap( angle(UR_prev) );  % Project previous input on ref, get phase
-            phase_Ref_Input2 = unwrap( angle(UR) );          % Project current input on ref
-            
-            phaseDiff = phase_Ref_Input1 - phase_Ref_Input2;    % Compute phase difference
-            p = polyfit(ExcitedHarm/N*2*pi,phaseDiff,1);        %  the slope of this curve gives the delay
-            delay = round(p(1))
-        end
-        
-        % compensate for delay
-        u = circshift(u,[-delay 0 ]);
-        y = circshift(y,[-delay 0]);
-        
-    end
-
-
-
-
     transientError = mean(var(y,[],2));
     
     

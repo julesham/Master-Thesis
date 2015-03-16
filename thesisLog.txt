@@ -39,3 +39,6 @@
 	- Check influence of reference or input 
 ** 12 Mar 2015
     - Rik Pintelon : some measurements are delayed with one sample, so all measurements are not synchronized, averaging makes no sense!
+** 16 Mar 2015
+    - John Lataire : dude, you are an engineer, shift your data
+	- Jules : Ok John, it works now, halleluja!

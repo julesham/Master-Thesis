@@ -1,0 +1,8 @@
+** measurement0
+    - Simulation to test logging function
+** measurement1
+    - VXI measurement with input shorted to output
+** measurement2
+    - VXI measurement with input shorted to output (second time)
+** measurement3
+    - VXI measurement with input shorted to output (less periods)

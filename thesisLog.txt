@@ -28,3 +28,14 @@
 ** 02 Mar 2015
     - Deprioritize the complete frequency band compensation, focussing on band of interest
     - Added noise, affects performance but not stability , maybe because of low-pass effect of BLA only being defined in BOI and zero outside of this.
+** 03 Mar 2015
+    - It works, but why? What nonlinear levels are acceptable?
+    - Comparison with other methods
+    - Transient in ILC, add some periods
+** 04 Mar 2015
+    - Added Transient periods to ILC
+** 10 Mar 2015
+	- Measurements are probably out of phase, keep the measurements to check!
+	- Check influence of reference or input 
+** 12 Mar 2015
+    - Rik Pintelon : some measurements are delayed with one sample, so all measurements are not synchronized, averaging makes no sense!

@@ -25,4 +25,9 @@ function [B, A, Cost] = estimateBLA(BLA,ExcitedHarm,N,naBla,nbBla)
     B = squeeze(Theta.B);
     A = squeeze(Theta.A);
 
+    % % Validation of result
+    % 
+    % z = exp(1j*2*pi*ExcitedHarmBLA/N);
+    % estBLA = polyval(B_BLA,z)./polyval(A_BLA,z);
+
 end

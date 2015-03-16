@@ -10,8 +10,8 @@ clear; close all; clc; tic;
 N = 2^14;       % Datapoints
 % Definition of System
 
-% DUT = 'SYS_WH';
-DUT = 'SYS_SNL';
+ DUT = 'SYS_WH';
+%DUT = 'SYS_SNL';
 % DUT = 'SYS_W' 
 
 %% Measurement Of BLA
@@ -78,7 +78,7 @@ y_ref = 2*real(ifft(Y_ref)); % desired output
 
 % ILC Parameters
  Q = 1; L = 1;
- iterationsILC = 1e3;
+ iterationsILC = 100;
  
 % Test of stability
 z = exp(1j*2*pi*ExcitedHarmBLA/N);

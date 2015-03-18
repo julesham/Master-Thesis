@@ -5,11 +5,11 @@ function [y,u] = SYS_WH(r)
   
   
     x = filter(b1,a1,r);    %
-    z = 5*tanh(x/5);           % Pass it trough system (noiseless)
+    z = 5*tanh(x/1.1);           % Pass it trough system (noiseless)
 %   z = x - 0.01*x.^3;
     y = filter(b2,a2,z);    
     
 %     Add noise
-     u = r + 1e-4*randn(size(r));
-     y = y + 1e-4*randn(size(r));
+     u = r + 3e-3*randn(size(r));
+     y = y + 3e-3*randn(size(r));
 end

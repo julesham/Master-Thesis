@@ -5,17 +5,19 @@
 
 
 clear; close all; clc; tic;
-% startupK6
+startupK6
 % VXI_Init
+% pause;
+cd('Z:\MA2\Master Thesis');
 %% Definitions
 % Definition of time 
-N = 2^12;       % DEFAULT 2^12 , if changed, also change in VXI System Parameters
+N = 4096;       % DEFAULT 2^12 , if changed, also change in VXI System Parameters
 
 % Definition of System
-DUT = 'SYS_VXI'; 
-% DUT = 'SYS_WH';
-% DUT = 'SYS_SNL';
-% DUT = 'SYS_W' 
+% DUT = 'SYS_VXI';          % Actuates the system
+DUT = 'SYS_WH';           % Simulation
+% DUT = 'SYS_SNL';          % Simulation
+% DUT = 'SYS_W'             % Simulation
 
 % Frequency bands of interest
 rms = 0.3;
@@ -28,8 +30,14 @@ P = 2;  % number of consecutive periods multisine
 M = 10; % number of independent repeated experiments
 
 % ILC Parameters
-iterationsILC = 10;
+iterationsILC = 50;
  
+fs = 10e6/2^2;
+ts = 1/fs;
+t0 = N*ts;
+f0 = 1/t0;
+
+fprintf('Expected Measurement Time :\nBLA : %g sec \nILC : %g sec ',M*(T+P)*t0,iterationsILC*(T+P)*t0)
 %% Measurement Of BLA
 
 %%%%
@@ -44,13 +52,15 @@ ExcitedHarmBLA = (1:F_BLA).';
 %%%
 
 fprintf('Starting BLA Measurement..\n');
-% [BLA_IO,BLA_RO,Y_BLA,U_BLA,transientError,BLA_Measurements]  = measureBLA(DUT,ExcitedHarmBLA,rms,N,T,P,M);
+
 [Uall,Yall,Rall,U_ref_all,transientError,BLA_Measurements] = measureBLA(DUT,ExcitedHarmBLA,rms,N,T,P,M);
 
 %% Analysis of BLA
 
 [BLA_IO,Y_BLA,U_BLA,~] = Robust_NL_Anal(Yall, Uall,Rall);   % Input -> output BLA
 BLA_RO = Robust_NL_Anal(Yall,U_ref_all);                    % Reference -> output BLA
+
+BLAPlots;
 
 %% ILC
 fprintf('Starting ILC Compensation..\n');
@@ -62,7 +72,7 @@ fprintf('Starting ILC Compensation..\n');
 F = floor(fmaxILC*N/2);            % Max frequency bin
 ExcitedHarmILC = (1:F).';          % Select all freq bins from 1 - F
 
-u_ref = rms*CalcMultisine(ExcitedHarmILC, N);
+u_ref = rms*CalcMultisine(ExcitedHarmILC, N); % reference input
 
     FRF = BLA_RO.mean.';
     U = fft(u_ref);
@@ -77,12 +87,12 @@ y_ref = 2*real(ifft(Y_ref)); % desired output
 
  Q = 1; L = 1;
 
-[uj,yj,y1,meanError,e,ILC_Measurements] = ilcFRF(DUT,y_ref,u_ref,iterationsILC,Q,L,BLA_RO.mean,T);
+[uj,yj,y1,meanError,e,ILC_Measurements] = ilcFRF(DUT,y_ref,u_ref,iterationsILC,Q,L,BLA_RO.mean,T,ExcitedHarmILC,ExcitedHarmBLA);
 
 
 %% Figures and Plots
 
-mainPlots;
+ILCPlots;
 
 % Print Outputs  
    

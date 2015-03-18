@@ -30,13 +30,14 @@ Rall = zeros(M, F);                     % reference spectrum for all realisation
 Uall = zeros(M, P, F);                  % input spectrum for all realisations and all periods
 Yall = zeros(M, P, F);                  % output spectrum for all realisations and all periods
 U_ref_all = zeros(M, P, F);             % Total Reference Spectrum
-delay = 0;
+
 BLA_Measurements.u = zeros(M, P, N);
 BLA_Measurements.y = zeros(M, P, N);
 BLA_Measurements.r = zeros(M,N);
 
-h = figure;
+h = figure('Name','BLA : Ref/Input/Output of System');
 for mm = 1:M
+    fprintf('Realisation in progress : %g/%g\n',mm,M)
     r = rms*CalcMultisine(ExcitedHarm, N); % Make a new MS realization (size of ExcitedHarm)
     R = fft(r)./sqrt(N);
     Rall(mm,:) = R(ExcitedHarm+1);
@@ -53,41 +54,22 @@ for mm = 1:M
     u = u(T*N+1:end);       % remove transients
     y = y(T*N+1:end);  
 
-     
-    
-    
-    
     u = reshape(u,N,P);     % organise by periods
     y = reshape(y,N,P);
     
     %%%
     % Delay Compensation
     %%%
-    if strcmp(DUT,'SYS_VXI')
+    
+    if strcmp(DUT,'SYS_VXI')        
         if mm == 1
-            
+            % We first save the first realization, and will synchronize the
+            % following ones with this one.
             u_first = u;
             r_first = r;
-            
         else
-            UR_prev = fft(u_first(:,1))./fft(r_first);
-            UR = fft(u(:,1))./fft(r);
-            
-            UR_prev = UR_prev(ExcitedHarm+1);
-            UR = UR(ExcitedHarm+1);
-            
-            phase_Ref_Input1 = unwrap( angle(UR_prev) );  % Project previous input on ref, get phase
-            phase_Ref_Input2 = unwrap( angle(UR) );          % Project current input on ref
-            
-            phaseDiff = phase_Ref_Input1 - phase_Ref_Input2;    % Compute phase difference
-            p = polyfit(ExcitedHarm/N*2*pi,phaseDiff,1);        %  the slope of this curve gives the delay
-            delay = round(p(1))
+            [u,y] = compensateAWGDelay(u,y,r,u_first,r_first,ExcitedHarm);
         end
-        
-        % compensate for delay
-        u = circshift(u,[-delay 0 ]);
-        y = circshift(y,[-delay 0]);
-        
     end
 
 

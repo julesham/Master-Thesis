@@ -1,4 +1,4 @@
-load('measurement8.mat','Yall','Rall','Uall','ExcitedHarmBLA','N');
+load('measurement2.mat','Yall','Rall','Uall','ExcitedHarmBLA','N');
 size(Yall)
 size(Rall)
 YY=squeeze(Yall(:,1,:)); % take one period

@@ -1,4 +1,4 @@
-function [uj,yj,y1,meanError,e,ILC_Measurements]= ilcFRF(DUT,y_ref,u_ref,iterationsILC,Q,L,BLA,transientPeriods)
+function [uj,yj,y1,meanError,e,ILC_Measurements]= ilcFRF(DUT,y_ref,u_ref,iterationsILC,Q,L,BLA,transientPeriods,ExcitedHarmILC,ExcitedHarmBLA)
 % applies ilc algorithm to find an input that generates the wanted output
 totalPeriods = transientPeriods+1;
 F_BLA = length(BLA); 
@@ -17,29 +17,44 @@ ILC_Measurements.yj = zeros(iterationsILC,N);
 ILC_Measurements.y_ref = y_ref;
 ILC_Measurements.u_ref = u_ref;
 
-for i = 1:iterationsILC
+for ii = 1:iterationsILC
         
-        fprintf('%g %%\n',i/iterationsILC*100);  
+        fprintf('ILC Iteration : %g/%g\n',ii,iterationsILC);  
         % Compute error
         e = y_ref-yj;
-        meanError(i) = mean(e.^2);
+        meanError(ii) = mean(e.^2);
         
         % ILC rule : u_j+1 = u_j + G_BLA^-1*ej;
         E = fft(e);
         dU = zeros(N,1);
-        dU(2:F_BLA+1) = (invG.').*E(2:F_BLA+1);
+        dU(ExcitedHarmBLA+1) = (invG.').*E(ExcitedHarmBLA+1);
         du = 2*real(ifft(dU)); 
         uj = Q*(uj + L*du);
-      
-      [yj, um ]  = feval(DUT, repmat(uj,totalPeriods,1) );
-      yj = yj(transientPeriods*N+1:totalPeriods*N);
+        
+      rr = repmat(uj,totalPeriods,1);
+      [yj, um ]  = feval(DUT, rr );
+      yj = yj(transientPeriods*N+1:totalPeriods*N); % transient removal
       um = um(transientPeriods*N+1:totalPeriods*N);
+      
+      %%%
+      % Delay Compensation
+      %%%
+      if strcmp(DUT,'SYS_VXI')
+          if ii == 1
+              % We first save the first realization, and will synchronize the
+              % following ones with this one.
+              u_first = um;
+              r_first = uj;
+          else
+              [um,ym] = compensateAWGDelay(um,ym,rr,u_first,r_first,ExcitedHarmILC);
+          end
+      end
 
       %%%
       % Save Everything
       %%%
-      ILC_Measurements.uj(i,:) = uj;
-      ILC_Measurements.um(i,:) = um;
-      ILC_Measurements.yj(i,:) = yj;
+      ILC_Measurements.uj(ii,:) = uj;
+      ILC_Measurements.um(ii,:) = um;
+      ILC_Measurements.yj(ii,:) = yj;
 end
         

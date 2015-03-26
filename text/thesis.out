@@ -1,7 +1,8 @@
 \BOOKMARK [0][-]{chapter.1}{Introduction}{}% 1
 \BOOKMARK [1][-]{section.1.1}{Why Digital Predistortion?}{chapter.1}% 2
 \BOOKMARK [1][-]{section.1.2}{Current Techniques of DPD}{chapter.1}% 3
-\BOOKMARK [1][-]{section.1.3}{Using ILC for DPD}{chapter.1}% 4
-\BOOKMARK [0][-]{chapter.2}{Compensating with ILC using the BLA}{}% 5
-\BOOKMARK [0][-]{chapter.3}{Estimating the DPD}{}% 6
-\BOOKMARK [0][-]{chapter.4}{Results}{}% 7
+\BOOKMARK [1][-]{section.1.3}{ILC}{chapter.1}% 4
+\BOOKMARK [1][-]{section.1.4}{Using ILC for DPD}{chapter.1}% 5
+\BOOKMARK [0][-]{chapter.2}{Compensating with ILC using the BLA}{}% 6
+\BOOKMARK [0][-]{chapter.3}{Estimating the DPD}{}% 7
+\BOOKMARK [0][-]{chapter.4}{Results}{}% 8

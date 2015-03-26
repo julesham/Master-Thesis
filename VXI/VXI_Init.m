@@ -25,7 +25,7 @@ cd('Z:\MA2\Master Thesis\VXI\');
 HPE1445_FiltSetBand(G_Dev(retrieve('g1','AWG')).session,[],0,250e3) % LowFreq = 0 Hz / HighFreq = 250kHz
 [LowFreq,HighFreq] = HPE1445_FiltGetBand(G_Dev(retrieve('g1','AWG')).session);
 
- %% Input Signal Parameters
+ %% Input Signal Parameters (DOES NOT CHANGE VXI PARAM!)
 % Input Signal
 fClock = 10e6;
 DivFac = 2^2;
@@ -40,7 +40,7 @@ f0 = fs/N;
 T0 = 1/f0;
 t = 0:1/fs:T0-1/fs;
 signal = sin(2*pi*f0.*t);
-signalRMS = 0.3;
+signalRMS = 2;
 % Adapt and Load Signal Into AWG
 Jules_Dual_1430_1445_Generate(signal, signalRMS); 
 % Measurement
@@ -48,8 +48,8 @@ pause(0.3); % Wait to remove eventual transient in system
 [u,y] = Dual_1430_1445_Measure(N,P,[]); % measurements aquisition 
 
 %% Plot data
-figure;
+figure('Name','Test of VXI');
 subplot(211); hold all; plot(u,'x'); plot(signal*signalRMS/rms(signal.'),'o'); 
 legend('input','reference'); 
 title(['rms of input = ',num2str(rms(u.'))]);
-subplot(212); stem(y);
+subplot(212); plot(y,'x-');

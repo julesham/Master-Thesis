@@ -42,3 +42,10 @@
 ** 16 Mar 2015
     - John Lataire : dude, you are an engineer, shift your data
 	- Jules : Ok John, it works now, halleluja!
+** 18 Mar 2015
+    - Measurements work! Check connections toroughly!
+** 19 Mar 2015
+    - Try with higher BW and different rms
+
+** try y_ref = K*u_ref
+tickler + parametric

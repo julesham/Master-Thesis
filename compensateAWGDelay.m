@@ -16,6 +16,7 @@ function [u_out,y_out] = compensateAWGDelay(u,y,r,u_first,r_first,ExcitedHarm)
     phaseDiff = phase_Ref_Input_first - phase_Ref_Input_curr;    % Compute phase difference with the TF measured the first time
     p = polyfit(ExcitedHarm/N*2*pi,phaseDiff,1);        % the slope of this curve gives the delay (mostly -1, 0 , +1 sample)
     delay = round(p(1));
+    fprintf('Delay Compensation : %g\n',delay)
 
 
 % compensate for delay

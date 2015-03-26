@@ -5,32 +5,32 @@
 
 
 clear; close all; clc; tic;
-startupK6
+% startupK6
 % VXI_Init
+% cd('Z:\MA2\Master Thesis');
 % pause;
-cd('Z:\MA2\Master Thesis');
 %% Definitions
 % Definition of time 
 N = 4096;       % DEFAULT 2^12 , if changed, also change in VXI System Parameters
 
 % Definition of System
-% DUT = 'SYS_VXI';          % Actuates the system
-DUT = 'SYS_WH';           % Simulation
+DUT = 'SYS_VXI';          % Actuates the system
+% DUT = 'SYS_WH';           % Simulation
 % DUT = 'SYS_SNL';          % Simulation
 % DUT = 'SYS_W'             % Simulation
 
 % Frequency bands of interest
-rms = 0.3;
+rmsInput = 0.7;
 fmaxBLA = 1/5;  % Excited frequency / f_nyquist
-fmaxILC = 1/20; % Excited frequency / f_nyquist
+fmaxILC = 1/15; % Excited frequency / f_nyquist
 
 % BLA Parameters
-T = 2;  % Transients Periods
+T = 1;  % Transients Periods
 P = 2;  % number of consecutive periods multisine
 M = 10; % number of independent repeated experiments
 
 % ILC Parameters
-iterationsILC = 50;
+iterationsILC = 15;
  
 fs = 10e6/2^2;
 ts = 1/fs;
@@ -53,14 +53,14 @@ ExcitedHarmBLA = (1:F_BLA).';
 
 fprintf('Starting BLA Measurement..\n');
 
-[Uall,Yall,Rall,U_ref_all,transientError,BLA_Measurements] = measureBLA(DUT,ExcitedHarmBLA,rms,N,T,P,M);
+[Uall,Yall,Rall,U_ref_all,transientError,BLA_Measurements] = measureBLA(DUT,ExcitedHarmBLA,rmsInput,N,T,P,M);
 
 %% Analysis of BLA
 
 [BLA_IO,Y_BLA,U_BLA,~] = Robust_NL_Anal(Yall, Uall,Rall);   % Input -> output BLA
 BLA_RO = Robust_NL_Anal(Yall,U_ref_all);                    % Reference -> output BLA
 
-BLAPlots;
+plotBLA;shg;
 
 %% ILC
 fprintf('Starting ILC Compensation..\n');
@@ -72,7 +72,7 @@ fprintf('Starting ILC Compensation..\n');
 F = floor(fmaxILC*N/2);            % Max frequency bin
 ExcitedHarmILC = (1:F).';          % Select all freq bins from 1 - F
 
-u_ref = rms*CalcMultisine(ExcitedHarmILC, N); % reference input
+u_ref = rmsInput*CalcMultisine(ExcitedHarmILC, N); % reference input
 
     FRF = BLA_RO.mean.';
     U = fft(u_ref);
@@ -85,14 +85,12 @@ y_ref = 2*real(ifft(Y_ref)); % desired output
 % ILC Learning Phase 
 %%%
 
- Q = 1; L = 1;
-
-[uj,yj,y1,meanError,e,ILC_Measurements] = ilcFRF(DUT,y_ref,u_ref,iterationsILC,Q,L,BLA_RO.mean,T,ExcitedHarmILC,ExcitedHarmBLA);
+[uj,yj,y1,meanError,e,ILC_Measurements] = ilcFRF(DUT,y_ref,u_ref,iterationsILC,BLA_RO.mean,T,ExcitedHarmILC,ExcitedHarmBLA);
 
 
 %% Figures and Plots
 
-ILCPlots;
+plotILC; shg;
 
 % Print Outputs  
    
@@ -106,10 +104,11 @@ fprintf('Script ended in %g sec.\n',toc);
 
 %% Dump (hihi) workspace when measuring
 if strcmp(DUT,'SYS_VXI') % if we are measuring
-    ii = 0;
-    while exist(['measurement',num2str(ii),'.mat'],'file') == 2 % If file exists
+    ii = 1;
+    prefix = 'PA';
+    while exist([prefix,num2str(ii),'.mat'],'file') == 2 % If file exists
         ii = ii+1; 
     end % Don't Overwrite Existing File
     dateAndTime = datestr(now);
-    save(['measurement',num2str(ii)]);
+    save([prefix,num2str(ii)]);
 end

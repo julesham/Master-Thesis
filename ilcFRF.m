@@ -1,14 +1,16 @@
-function [uj,yj,y1,meanError,e,ILC_Measurements]= ilcFRF(DUT,y_ref,u_ref,iterationsILC,Q,L,BLA,transientPeriods,ExcitedHarmILC,ExcitedHarmBLA)
+function [uj,yj,y1,meanError,e,ILC_Measurements]= ilcFRF(DUT,y_ref,u_ref,iterationsILC,BLA,transientPeriods,ExcitedHarmILC,ExcitedHarmBLA)
 % applies ilc algorithm to find an input that generates the wanted output
 totalPeriods = transientPeriods+1;
-F_BLA = length(BLA); 
-N = length(y_ref);
+N    = length(y_ref);
 invG = BLA.^-1;
-meanError = zeros(1,iterationsILC);
-uj = u_ref;
-[yj, ~ ] = feval(DUT, repmat(uj,totalPeriods,1) );  % 
-yj = yj(transientPeriods*N+1:totalPeriods*N);       % Transient 
-y1 = yj;
+
+meanError = zeros(iterationsILC,1);
+
+uj = u_ref;                     % first iteration is reference input
+rr = repmat(uj,totalPeriods,1); 
+[yj, um ] = feval(DUT,  rr);    % Pass trough system
+yj = yj(transientPeriods*N+1:totalPeriods*N);       % Transient removal
+y1 = yj;    % Save initial response to compare zith later
 
 
 ILC_Measurements.uj = zeros(iterationsILC,N);
@@ -16,7 +18,7 @@ ILC_Measurements.um = zeros(iterationsILC,N);
 ILC_Measurements.yj = zeros(iterationsILC,N);
 ILC_Measurements.y_ref = y_ref;
 ILC_Measurements.u_ref = u_ref;
-
+ILC_Measurements.ExcitedHarm = ExcitedHarmILC;
 for ii = 1:iterationsILC
         
         fprintf('ILC Iteration : %g/%g\n',ii,iterationsILC);  
@@ -29,7 +31,7 @@ for ii = 1:iterationsILC
         dU = zeros(N,1);
         dU(ExcitedHarmBLA+1) = (invG.').*E(ExcitedHarmBLA+1);
         du = 2*real(ifft(dU)); 
-        uj = Q*(uj + L*du);
+        uj = uj + du;
         
       rr = repmat(uj,totalPeriods,1);
       [yj, um ]  = feval(DUT, rr );
@@ -46,15 +48,15 @@ for ii = 1:iterationsILC
               u_first = um;
               r_first = uj;
           else
-              [um,ym] = compensateAWGDelay(um,ym,rr,u_first,r_first,ExcitedHarmILC);
+              [um,yj] = compensateAWGDelay(um,yj,uj,u_first,r_first,ExcitedHarmILC);
           end
       end
 
       %%%
       % Save Everything
       %%%
-      ILC_Measurements.uj(ii,:) = uj;
-      ILC_Measurements.um(ii,:) = um;
-      ILC_Measurements.yj(ii,:) = yj;
+      ILC_Measurements.uj(ii,:) = uj;   %reference input
+      ILC_Measurements.um(ii,:) = um;   % measured input
+      ILC_Measurements.yj(ii,:) = yj;   % measured output
 end
         

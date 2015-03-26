@@ -34,6 +34,12 @@ U_ref_all = zeros(M, P, F);             % Total Reference Spectrum
 BLA_Measurements.u = zeros(M, P, N);
 BLA_Measurements.y = zeros(M, P, N);
 BLA_Measurements.r = zeros(M,N);
+BLA_Measurements.N = N;
+BLA_Measurements.T = T;
+BLA_Measurements.P = P;
+BLA_Measurements.M = M;
+BLA_Measurements.ExcitedHarm = ExcitedHarm;
+BLA_Measurements.rms = rms;
 
 h = figure('Name','BLA : Ref/Input/Output of System');
 for mm = 1:M
@@ -47,10 +53,11 @@ for mm = 1:M
 
     
     figure(h);
-    subplot(3,1,1); plot(r); title('Reference');
-    subplot(3,1,2); plot(u); title('Input');
-    subplot(3,1,3); plot(y); title('Output');
-
+    subplot(3,1,1); plot(r); title('Reference');ylim([min(r) max(r)]);
+    subplot(3,1,2); plot(u); title('Input');    ylim([min(u) max(u)]);
+    subplot(3,1,3); plot(y); title('Output');   ylim([min(y) max(y)]);
+    shg;
+    
     u = u(T*N+1:end);       % remove transients
     y = y(T*N+1:end);  
 
@@ -71,13 +78,7 @@ for mm = 1:M
             [u,y] = compensateAWGDelay(u,y,r,u_first,r_first,ExcitedHarm);
         end
     end
-
-
-
-
     transientError = mean(var(y,[],2));
-    
-    
     %%%
     % Save Everything
     %%%
@@ -85,7 +86,6 @@ for mm = 1:M
     BLA_Measurements.u(mm, :, :) = u.'; 
     BLA_Measurements.y(mm, :, :) = y.'; 
     BLA_Measurements.r(mm,:) = r;
-    
     
     Y = fft(y)./sqrt(N);
     U = fft(u)./sqrt(N);
@@ -97,4 +97,3 @@ for mm = 1:M
     U_ref = fft(u_ref)./sqrt(N);
     U_ref_all(mm,:,:) = U_ref(ExcitedHarm+1,:).';
 end
-close(h)

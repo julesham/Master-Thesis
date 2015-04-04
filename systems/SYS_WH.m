@@ -5,8 +5,7 @@ function [y,u] = SYS_WH(r)
   
   
     x = filter(b1,a1,r);    %
-    z = 5*tanh(x/1.1);           % Pass it trough system (noiseless)
-%   z = x - 0.01*x.^3;
+    z = 5*tanh(x/1.2);           % Pass it trough system (noiseless)
     y = filter(b2,a2,z);    
     
 %     Add noise

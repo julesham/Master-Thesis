@@ -44,7 +44,15 @@ BLA_Measurements.rms = rms;
 h = figure('Name','BLA : Ref/Input/Output of System');
 for mm = 1:M
     fprintf('Realisation in progress : %g/%g\n',mm,M)
+    
+    
     r = rms*CalcMultisine(ExcitedHarm, N); % Make a new MS realization (size of ExcitedHarm)
+    if strcmp(DUT,'SYS_VXI')
+        while max(abs(r)) > 5
+            fprintf('Overloading System, recomputing Multisine. \n ');
+            r = rms*CalcMultisine(ExcitedHarm, N);
+        end
+    end
     R = fft(r)./sqrt(N);
     Rall(mm,:) = R(ExcitedHarm+1);
     

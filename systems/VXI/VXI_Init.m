@@ -12,12 +12,12 @@ clc
 %% Init
 defpath
 addpath('D:\ANNA_Rev1\ZZ_Applications')
-oldFolder = cd('Z:\MA2\Master Thesis\VXI\');
+oldFolder = cd('Z:\MA2\Master Thesis\Systems\VXI\');
 Jules_Dual_1430_1445
 cd(oldFolder)
 anna_init
 
-cd('Z:\MA2\Master Thesis\VXI\');
+cd('Z:\MA2\Master Thesis\Systems\VXI\');
 
 
 
@@ -40,7 +40,7 @@ f0 = fs/N;
 T0 = 1/f0;
 t = 0:1/fs:T0-1/fs;
 signal = sin(2*pi*f0.*t);
-signalRMS = 2;
+signalRMS = 0.3;
 % Adapt and Load Signal Into AWG
 Jules_Dual_1430_1445_Generate(signal, signalRMS); 
 % Measurement

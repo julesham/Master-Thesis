@@ -10,9 +10,10 @@ function [u_out,y_out] = compensateAWGDelay(u,y,r,u_first,r_first,ExcitedHarm)
     phase_Ref_Input_first = unwrap( angle(UR_first) );
     
 
-    UR = fft(u(:,1))./fft(r);                           % Compute actuator Transfer Function
-    UR = UR(ExcitedHarm+1);                             % Select Excited Frequencies
+    UR = fft(u(:,1))./fft(r);                               % Compute actuator Transfer Function
+    UR = UR(ExcitedHarm+1);                                 % Select Excited Frequencies
     phase_Ref_Input_curr = unwrap( angle(UR) );             % Consider the phase
+    
     phaseDiff = phase_Ref_Input_first - phase_Ref_Input_curr;    % Compute phase difference with the TF measured the first time
     p = polyfit(ExcitedHarm/N*2*pi,phaseDiff,1);        % the slope of this curve gives the delay (mostly -1, 0 , +1 sample)
     delay = round(p(1));

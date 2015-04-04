@@ -22,14 +22,14 @@ figure('name','ILC : Frequency Domain');
 
 subplot(211); 
     hold all;
-    freq = (0:N-1)/N;
-    plot(freq,db(fft(y_ref)/N),'o');
-    plot(freq,db(fft(yj)/N),'.');
-    plot(freq,db(fft(y1)/N),'.');
+    freq = fftshift((0:N-1)/N)-mean(freq);
+    plot(freq,(db(fft(y_ref)/sqrt(N))),'x');
+    plot(freq,(db(fft(yj)/sqrt(N))),'.');
+    plot(freq,(db(fft(y1)/sqrt(N))),'.');
     xlabel('freq'); ylabel('Amplitude');
     legend('y_d = BLA(u\_ref)','y\_j','y1 = SYS(u\_ref)');
     title('Comparison y_d and y_j ');
-
+    ylim([min( db( fft(yj)/sqrt(N) ) ), 20  ])
 subplot(212);
     plot(freq,db(fft(e)/sqrt(N)),'.'); xlabel('freq'); ylabel('error');
     title('y_d - y_j') ;

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.5-1.40.14 (MiKTeX 2.9) (preloaded format=pdflatex 2014.12.18)  23 MAR 2015 15:18
+This is pdfTeX, Version 3.1415926-2.5-1.40.14 (MiKTeX 2.9) (preloaded format=pdflatex 2014.12.18)  24 MAR 2015 13:49
 entering extended mode
 **Z:/MA2/Master*Thesis/text/thesis.tex
 ("Z:/MA2/Master Thesis/text/thesis.tex"
@@ -327,16 +327,24 @@ LaTeX Font Info:    External font `cmex10' loaded for size
  [1
 
 {C:/Users/jules.hammenecker/AppData/Local/MiKTeX/2.9/pdftex/config/pdftex.map}]
-LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <10> not available
+LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <14.4> not available
 (Font)              Font shape `OT1/ptm/b/n' tried instead on input line 16.
 pdfTeX warning (ext4): destination with the same identifier (name{page.1}) has 
 been already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.18 \end{abstract}
+l.18 \begin{abstract}
+                      [1]
+LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <10> not available
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 18.
+pdfTeX warning (ext4): destination with the same identifier (name{page.1}) has 
+been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.20 \end{abstract}
                     [1]
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <24.88> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 20.
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 22.
  ("Z:\MA2\Master Thesis\text\thesis.toc"
 LaTeX Font Info:    External font `cmex10' loaded for size
 (Font)              <7> on input line 2.
@@ -348,49 +356,47 @@ pdfTeX warning (ext4): destination with the same identifier (name{page.1}) has
 been already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.21 \chapter
+l.23 \chapter
              {Introduction} [1
 
 ]
 Chapter 1.
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <20.74> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 21.
-LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <14.4> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 22.
-<images/lego1.pdf, id=57, 293.05484pt x 81.57718pt>
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 23.
+<images/lego1.pdf, id=61, 293.05484pt x 81.57718pt>
 File: images/lego1.pdf Graphic file (type pdf)
  <use images/lego1.pdf>
-Package pdftex.def Info: images/lego1.pdf used on input line 33.
+Package pdftex.def Info: images/lego1.pdf used on input line 35.
 (pdftex.def)             Requested size: 293.05411pt x 81.57697pt.
 
-<images/lego2.pdf, id=58, 167.11504pt x 81.58313pt>
+<images/lego2.pdf, id=62, 167.11504pt x 81.58313pt>
 File: images/lego2.pdf Graphic file (type pdf)
  <use images/lego2.pdf>
-Package pdftex.def Info: images/lego2.pdf used on input line 39.
+Package pdftex.def Info: images/lego2.pdf used on input line 41.
 (pdftex.def)             Requested size: 167.11461pt x 81.58292pt.
 
-<images/lego3.pdf, id=59, 273.42438pt x 116.53139pt>
+<images/lego3.pdf, id=63, 273.42438pt x 116.53139pt>
 File: images/lego3.pdf Graphic file (type pdf)
  <use images/lego3.pdf>
-Package pdftex.def Info: images/lego3.pdf used on input line 45.
+Package pdftex.def Info: images/lego3.pdf used on input line 47.
 (pdftex.def)             Requested size: 273.4237pt x 116.53108pt.
 
-<images/lego4.pdf, id=60, 249.70361pt x 124.91733pt>
+<images/lego4.pdf, id=64, 249.70361pt x 124.91733pt>
 File: images/lego4.pdf Graphic file (type pdf)
  <use images/lego4.pdf>
-Package pdftex.def Info: images/lego4.pdf used on input line 51.
+Package pdftex.def Info: images/lego4.pdf used on input line 53.
 (pdftex.def)             Requested size: 249.70299pt x 124.917pt.
 
-<images/lego5.pdf, id=61, 245.74542pt x 128.29738pt>
+<images/lego5.pdf, id=65, 245.74542pt x 128.29738pt>
 File: images/lego5.pdf Graphic file (type pdf)
  <use images/lego5.pdf>
-Package pdftex.def Info: images/lego5.pdf used on input line 57.
+Package pdftex.def Info: images/lego5.pdf used on input line 59.
 (pdftex.def)             Requested size: 245.74481pt x 128.29706pt.
 
-<images/lego6.pdf, id=62, 266.5293pt x 104.5401pt>
+<images/lego6.pdf, id=66, 266.5293pt x 104.5401pt>
 File: images/lego6.pdf Graphic file (type pdf)
  <use images/lego6.pdf>
-Package pdftex.def Info: images/lego6.pdf used on input line 62.
+Package pdftex.def Info: images/lego6.pdf used on input line 64.
 (pdftex.def)             Requested size: 266.52864pt x 104.53983pt.
 
 [2
@@ -421,21 +427,21 @@ Chapter 4.
 [7
 
 ]
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 78.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 80.
  [8
 
 ]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 78.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 80.
  ("Z:\MA2\Master Thesis\text\thesis.aux")
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 78.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 78.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 80.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 80.
 Package rerunfilecheck Info: File `thesis.out' has not changed.
 (rerunfilecheck)             Checksum: 9FA5329C3365BE16E0CF8913AA1FA5A7;475.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 78.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 80.
  ) 
 Here is how much of TeX's memory you used:
- 6825 strings out of 493706
- 103014 string characters out of 3142143
+ 6826 strings out of 493706
+ 103024 string characters out of 3142143
  191352 words of memory out of 3000000
  10065 multiletter control sequences out of 15000+200000
  20840 words of font info for 42 fonts, out of 3000000 for 9000
@@ -447,9 +453,9 @@ Files (x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmmi7.pfb><C:/Program Fil
 es (x86)/MiKTeX 2.9/fonts/type1/urw/times/utmb8a.pfb><C:/Program Files (x86)/Mi
 KTeX 2.9/fonts/type1/urw/times/utmr8a.pfb><C:/Program Files (x86)/MiKTeX 2.9/fo
 nts/type1/urw/times/utmri8a.pfb>
-Output written on thesis.pdf (10 pages, 166699 bytes).
+Output written on thesis.pdf (11 pages, 167776 bytes).
 PDF statistics:
- 222 PDF objects out of 1000 (max. 8388607)
- 26 named destinations out of 1000 (max. 500000)
+ 226 PDF objects out of 1000 (max. 8388607)
+ 27 named destinations out of 1000 (max. 500000)
  95 words of extra memory for PDF output out of 10000 (max. 10000000)
 

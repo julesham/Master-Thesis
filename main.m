@@ -3,26 +3,25 @@
 % Jules Hammenecker, Vrije Universiteit Brussel
 %%%
 
-
 clear; close all; clc; tic;
-% startupK6
+ startupK6
 % VXI_Init
-% cd('Z:\MA2\Master Thesis');
+%  cd('Z:\MA2\Master Thesis');
 % pause;
 %% Definitions
 % Definition of time 
 N = 4096;       % DEFAULT 2^12 , if changed, also change in VXI System Parameters
 
 % Definition of System
-DUT = 'SYS_VXI';          % Actuates the system
+% DUT = 'SYS_VXI';          % Actuates the system
 % DUT = 'SYS_WH';           % Simulation
 % DUT = 'SYS_SNL';          % Simulation
-% DUT = 'SYS_W'             % Simulation
+DUT = 'SYS_W';             % Simulation
 
 % Frequency bands of interest
-rmsInput = 0.7;
+rmsInput = 0.5;
 fmaxBLA = 1/5;  % Excited frequency / f_nyquist
-fmaxILC = 1/15; % Excited frequency / f_nyquist
+fmaxILC = 1/10; % Excited frequency / f_nyquist
 
 % BLA Parameters
 T = 1;  % Transients Periods
@@ -30,8 +29,9 @@ P = 2;  % number of consecutive periods multisine
 M = 10; % number of independent repeated experiments
 
 % ILC Parameters
-iterationsILC = 15;
- 
+iterationsILC = 10;
+ilcM = 10; % Number of realizarions to measure ILC'er
+
 fs = 10e6/2^2;
 ts = 1/fs;
 t0 = N*ts;
@@ -55,13 +55,13 @@ fprintf('Starting BLA Measurement..\n');
 
 [Uall,Yall,Rall,U_ref_all,transientError,BLA_Measurements] = measureBLA(DUT,ExcitedHarmBLA,rmsInput,N,T,P,M);
 
-%% Analysis of BLA
+% Analysis of BLA
 
 [BLA_IO,Y_BLA,U_BLA,~] = Robust_NL_Anal(Yall, Uall,Rall);   % Input -> output BLA
 BLA_RO = Robust_NL_Anal(Yall,U_ref_all);                    % Reference -> output BLA
 
 plotBLA;shg;
-
+save('BLA_Info')
 %% ILC
 fprintf('Starting ILC Compensation..\n');
 
@@ -69,46 +69,49 @@ fprintf('Starting ILC Compensation..\n');
 % Create Desired Output (BLA*MS)
 %%%
 
+FRF = BLA_RO.mean;                  % FRF used to compute ideal response and used in ILC algo
 F = floor(fmaxILC*N/2);            % Max frequency bin
 ExcitedHarmILC = (1:F).';          % Select all freq bins from 1 - F
+%%% Measure u -> uj parameters
+ ilc_DPD.u_ref = nan(ilcM,2,N);
+ ilc_DPD.uj = nan(ilcM,2,N);
+ ilc_DPD.yj = nan(ilcM,2,N);
+for ii = 1:ilcM 
+  
+    u_ref = rmsInput*CalcMultisine(ExcitedHarmILC, N);  % reference input
+        if strcmp(DUT,'SYS_VXI')
+            while max(abs(u_ref)) > 5
+                warning('Overloading System, recomputing Multisine. ');
+                u_ref = rmsInput*CalcMultisine(ExcitedHarmILC, N);  % reference input
+            end
+        end
 
-u_ref = rmsInput*CalcMultisine(ExcitedHarmILC, N); % reference input
+    y_ref = filterFRF(FRF,ExcitedHarmBLA,u_ref);% filter trough BLA
 
-    FRF = BLA_RO.mean.';
-    U = fft(u_ref);
-    Y_ref = zeros(N,1);
-    Y_ref(ExcitedHarmBLA+1) = FRF.*U(ExcitedHarmBLA+1);
+    %%%
+    % ILC Learning Phase 
+    %%%
+    [uj,yj,y1,meanError,e,ILC_Measurements] = ilcFRF(DUT,y_ref,u_ref,iterationsILC,FRF,T,ExcitedHarmILC,ExcitedHarmBLA);
 
-y_ref = 2*real(ifft(Y_ref)); % desired output
+    ilc_DPD.u_ref(ii,:,:) = repmat(u_ref.',2,1);
+    ilc_DPD.uj(ii,:,:)= repmat(uj.',2,1);
+    ilc_DPD.yj(ii,:,:) = repmat(yj.',2,1);
+end
 
-%%%
-% ILC Learning Phase 
-%%%
+U_ref = fft(ilc_DPD.u_ref,[],3)/sqrt(N);
+Uj    =  fft(ilc_DPD.uj,[],3)/sqrt(N);
+U_ref = U_ref(:,:,ExcitedHarmILC+1);
+Uj = Uj(:,:,ExcitedHarmILC+1);
 
-[uj,yj,y1,meanError,e,ILC_Measurements] = ilcFRF(DUT,y_ref,u_ref,iterationsILC,BLA_RO.mean,T,ExcitedHarmILC,ExcitedHarmBLA);
-
-
-%% Figures and Plots
-
+BLA_DPD = Robust_NL_Anal(Uj,U_ref); 
+% Figures and Plots
 plotILC; shg;
 
-% Print Outputs  
-   
-fprintf('System used = %s \n',DUT);  
-fprintf('MSE between periods of y = %E\n',transientError);  
-fprintf('Iterations ILC = %g \n',iterationsILC);  
-E = fft(e)/sqrt(N);
-MSEBLA = mean( 2*real(ifft(E(ExcitedHarmBLA+1))*sqrt(N)).^2 );
-fprintf('MSE over BLA freq = %g dB \n',db(MSEBLA));
-fprintf('Script ended in %g sec.\n',toc);
+% Print Text Info  
+printOutput;
 
-%% Dump (hihi) workspace when measuring
+% Dump (hihi) workspace when measuring with VXI
 if strcmp(DUT,'SYS_VXI') % if we are measuring
-    ii = 1;
-    prefix = 'PA';
-    while exist([prefix,num2str(ii),'.mat'],'file') == 2 % If file exists
-        ii = ii+1; 
-    end % Don't Overwrite Existing File
-    dateAndTime = datestr(now);
-    save([prefix,num2str(ii)]);
+    filename = 'PA';
+    dumpWorkspace;
 end

@@ -46,6 +46,9 @@
     - Measurements work! Check connections toroughly!
 ** 19 Mar 2015
     - Try with higher BW and different rms
+** 23 Mar 2015 
+    * try Y_ref = K*U_ref and compare with BLA
+    * tickler + parametric
+    * non-linear identification
 
-** try y_ref = K*u_ref
-tickler + parametric
+

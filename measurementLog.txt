@@ -1,11 +1,18 @@
 ** PA1
     - First Test : rms 0.3 , fILC = 1/20
-** PA2 
+** PA2
     -  rms 0.3 fILC = 1/15
-** PA3 
+** PA3
     -  rms 0.3 fILC = 1/10
-** PA4 
+** PA4
     -  rms 0.3 fILC = 1/5
-%   Of course you cannot, BLA cannot compensate out of band!
-** PA5 
+%%   Of course you cannot, BLA cannot compensate out of band!
+** PA5
     -  rms 0.5 fILC = 1/15
+** PA6
+    -  rms 0.5 fILC = 1/10
+** PA7
+    - rms 0.5 fILC = 1/10 use as reference (BLA(2))*u_ref
+** PA8
+    - rms 0.5 fILC = 1/10
+    -  multiple ILC realisations

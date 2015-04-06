@@ -3,107 +3,148 @@
 % Jules Hammenecker, Vrije Universiteit Brussel
 %%%
 
-clear; close all; clc; tic;
- startupK6
-% VXI_Init
-%  cd('Z:\MA2\Master Thesis');
-% pause;
+clear; close all; clc; tic; startupK6;
+
+BLAMeasurementEnabled = true;
+
 %% Definitions
 % Definition of time 
-N = 4096;       % DEFAULT 2^12 , if changed, also change in VXI System Parameters
+time.N = 4096;       % DEFAULT 2^12 , if changed, also change in VXI System Parameters
+time.fs = 10e6/2^2;
 
 % Definition of System
+
 % DUT = 'SYS_VXI';          % Actuates the system
-% DUT = 'SYS_WH';           % Simulation
+DUT = 'SYS_WH';           % Simulation
 % DUT = 'SYS_SNL';          % Simulation
-DUT = 'SYS_W';             % Simulation
+% DUT = 'SYS_W';             % Simulation
 
-% Frequency bands of interest
-rmsInput = 0.5;
-fmaxBLA = 1/5;  % Excited frequency / f_nyquist
-fmaxILC = 1/10; % Excited frequency / f_nyquist
+if strcmp(DUT,'SYS_VXI')    
+    VXI_Init
+    cd('Z:\MA2\Master Thesis');
+    pause;
+end
+% Frequency bands of interest (Normalised with respect to Nyquist Freq) and
+% rms
 
-% BLA Parameters
+rmsInput = 0.3; fmaxBLA = 1/5;  
+% rmsInput = 0.5; fmaxBLA = 1/5;  
+
+% Global Measurements Parameters 
 T = 1;  % Transients Periods
 P = 2;  % number of consecutive periods multisine
+
+% BLA Measurement Parameters
 M = 10; % number of independent repeated experiments
 
-% ILC Parameters
-iterationsILC = 10;
-ilcM = 10; % Number of realizarions to measure ILC'er
 
-fs = 10e6/2^2;
-ts = 1/fs;
-t0 = N*ts;
-f0 = 1/t0;
+% Derived Parameters
+time.ts = 1/time.fs;
+time.t0 = time.N*time.ts;
+time.f0 = 1/time.t0;
+ExcitedHarmBLA = (1: floor(fmaxBLA*time.N/2) ).';
 
-fprintf('Expected Measurement Time :\nBLA : %g sec \nILC : %g sec ',M*(T+P)*t0,iterationsILC*(T+P)*t0)
-%% Measurement Of BLA
+    %% Measurement Of BLA
 
-%%%%
-% Design of Input Signal
-%%%%
-% Band Of Interest
-F_BLA = floor(fmaxBLA*N/2);
-ExcitedHarmBLA = (1:F_BLA).';
+    % 3 cases Possible : 
+    % 1) Measurement is enabled : BLA is measured and data is saved
+    % 2) Measurement is not enabled and it's the VXI : user has to choose
+    % BLA data to use
+    % 3) Other : Error
 
-%%%
-% Measure BLA
-%%%
+    if BLAMeasurementEnabled
+        fprintf('Starting BLA Measurement..\n');
+        [BLA_Measurements] = measureBLA(DUT,ExcitedHarmBLA,rmsInput,time.N,T,P,M);
+        
+        if strcmp(DUT,'SYS_WH')
+            
+            filenameBLA = ['BLA_PA_',datestr(now,'dd_mmm_HH'),'h',datestr(now,'MM')];
+            save(filenameBLA,'time','BLA_Measurements');
+        end
+        
+    elseif strcmp(DUT,'SYS_WH') % if BLA Measurement is not enabled, choose a measurement file.
+            clear;
+            filenameBLA = uigetfile('*.mat','Select the BLA you want to use for ILC Compensation.');
+            load(filenameBLA);
+    else
+        error('No data available to create BLA.')
+    end % if BLAMeasurementEnabled
 
-fprintf('Starting BLA Measurement..\n');
+    %%%
+    % Processing Measurements (FOR ALL CASES)
+    %%%
 
-[Uall,Yall,Rall,U_ref_all,transientError,BLA_Measurements] = measureBLA(DUT,ExcitedHarmBLA,rmsInput,N,T,P,M);
+    % Process the raw data
+    [Yall,Uall,Rall,U_ref_all]  = processBLAMeasurements(BLA_Measurements); 
 
-% Analysis of BLA
+    % Compute Input -> output BLA
+    [BLA_IO,Y_BLA,U_BLA,CYU]    = Robust_NL_Anal(Yall, Uall,Rall); 
 
-[BLA_IO,Y_BLA,U_BLA,~] = Robust_NL_Anal(Yall, Uall,Rall);   % Input -> output BLA
-BLA_RO = Robust_NL_Anal(Yall,U_ref_all);                    % Reference -> output BLA
+    % Compute Reference -> output BLA
+    BLA_RO                      = Robust_NL_Anal(Yall,U_ref_all);           
 
-plotBLA;shg;
-save('BLA_Info')
+    plotBLA;shg;    % Plot
+
+
+    
+
+
 %% ILC
 fprintf('Starting ILC Compensation..\n');
 
+% ILC Measurement Parameters
+
+fmaxILC = 1/20; % Best for Simulations
+% fmaxILC = 1/10; % Better for VXI
+
+iterationsILC = 10;
+ilcM = 10; % Number of realisations to measure ILC'er
+rmsInput = BLA_Measurements.rms;
+DUT = BLA_Measurements.DUT;
 %%%
 % Create Desired Output (BLA*MS)
 %%%
 
-FRF = BLA_RO.mean;                  % FRF used to compute ideal response and used in ILC algo
-F = floor(fmaxILC*N/2);            % Max frequency bin
-ExcitedHarmILC = (1:F).';          % Select all freq bins from 1 - F
-%%% Measure u -> uj parameters
- ilc_DPD.u_ref = nan(ilcM,2,N);
- ilc_DPD.uj = nan(ilcM,2,N);
- ilc_DPD.yj = nan(ilcM,2,N);
-for ii = 1:ilcM 
-  
-    u_ref = rmsInput*CalcMultisine(ExcitedHarmILC, N);  % reference input
+F = floor(fmaxILC*time.N/2);        % Max frequency bin
+ExcitedHarmILC = (1:F).';           % Select all freq bins from 1 - F
+ ILC_Measurements.BLAInfo.ExcitedHarmBLA= BLA_Measurements.ExcitedHarm;
+ ILC_Measurements.BLAInfo.BLA_RO       = BLA_RO;
+ ILC_Measurements.DUT           = DUT;
+ ILC_Measurements.ExcitedHarmILC= ExcitedHarmILC;
+ ILC_Measurements.ilcM          = ilcM;
+ ILC_Measurements.T             = BLA_Measurements.T;
+ ILC_Measurements.iterations    = iterationsILC;
+ ILC_Measurements.u_ref         = nan(ilcM,time.N);
+ ILC_Measurements.y_ref         = nan(ilcM,time.N);
+ ILC_Measurements.um            = nan(ilcM,iterationsILC,time.N);
+ ILC_Measurements.uj            = nan(ilcM,iterationsILC,time.N);
+ ILC_Measurements.yj            = nan(ilcM,iterationsILC,time.N);
+ ILC_Measurements.error = nan(ilcM,iterationsILC,time.N);
+ 
+for mm = 1:ilcM 
+    fprintf('Starting ILC Realisation %g/%g\n',mm,ilcM)
+    u_ref = rmsInput*CalcMultisine(ExcitedHarmILC, time.N);  % reference input
         if strcmp(DUT,'SYS_VXI')
             while max(abs(u_ref)) > 5
                 warning('Overloading System, recomputing Multisine. ');
-                u_ref = rmsInput*CalcMultisine(ExcitedHarmILC, N);  % reference input
+                u_ref = rmsInput*CalcMultisine(ExcitedHarmILC, time.N);  % reference input
             end
         end
 
-    y_ref = filterFRF(FRF,ExcitedHarmBLA,u_ref);% filter trough BLA
+    y_ref = filterFRF(BLA_RO.mean,ExcitedHarmBLA,u_ref);% filter trough BLA
 
+    ILC_Measurements.u_ref(mm,:) = u_ref;
+    ILC_Measurements.y_ref(mm,:) = y_ref;
     %%%
     % ILC Learning Phase 
     %%%
-    [uj,yj,y1,meanError,e,ILC_Measurements] = ilcFRF(DUT,y_ref,u_ref,iterationsILC,FRF,T,ExcitedHarmILC,ExcitedHarmBLA);
-
-    ilc_DPD.u_ref(ii,:,:) = repmat(u_ref.',2,1);
-    ilc_DPD.uj(ii,:,:)= repmat(uj.',2,1);
-    ilc_DPD.yj(ii,:,:) = repmat(yj.',2,1);
+    [ILC_Measurements] = ilcFRF(ILC_Measurements,mm);
+% uj,yj,y1,meanError,e,ILC_Measurements
+    
 end
 
-U_ref = fft(ilc_DPD.u_ref,[],3)/sqrt(N);
-Uj    =  fft(ilc_DPD.uj,[],3)/sqrt(N);
-U_ref = U_ref(:,:,ExcitedHarmILC+1);
-Uj = Uj(:,:,ExcitedHarmILC+1);
 
-BLA_DPD = Robust_NL_Anal(Uj,U_ref); 
+
 % Figures and Plots
 plotILC; shg;
 
@@ -111,7 +152,8 @@ plotILC; shg;
 printOutput;
 
 % Dump (hihi) workspace when measuring with VXI
-if strcmp(DUT,'SYS_VXI') % if we are measuring
-    filename = 'PA';
-    dumpWorkspace;
+if strcmp(DUT,'SYS_WH') % if we are measuring
+     filename = ['ILC_PA_',datestr(now,'dd_mmm_HH'),'h',datestr(now,'MM')];
+     save(filename,'time','ILC_Measurements','filenameBLA');
+
 end

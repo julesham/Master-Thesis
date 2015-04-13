@@ -1,4 +1,4 @@
-function [BLA_Measurements] = measureBLA(DUT,ExcitedHarm,rms,N,T,P,M)
+function [BLA_Measurements] = measureBLA(DUT,ExcitedHarm,AmplitudeSpectrum,rms,N,T,P,M)
 %% Measures the BLA of the DUT using the robust method.
 %  * Syntax * 
 %
@@ -46,14 +46,13 @@ BLA_Measurements.DUT = DUT;
 h = figure('Name','BLA : Ref/Input/Output of System');
 for mm = 1:M
     fprintf('Realisation in progress : %g/%g\n',mm,M)
-    
-    
-    r = rms*CalcMultisine(ExcitedHarm, N); % Make a new MS realization (size of ExcitedHarm)
+
+    r = rms*CalcMultisine(ExcitedHarm, N, AmplitudeSpectrum); % Make a new MS realization (size of ExcitedHarm)
     
     if strcmp(DUT,'SYS_VXI')
         while max(abs(r)) > 5
             fprintf('Overloading System, recomputing Multisine. \n ');
-            r = rms*CalcMultisine(ExcitedHarm, N);
+            r = rms*CalcMultisine(ExcitedHarm, N, AmplitudeSpectrum);
         end
     end
     

@@ -5,11 +5,10 @@ function [y,u] = SYS_VXI(r)
 
 % Adapt Signal
 signalRMS = rms(r);
-signal = r./max(max(abs(r))); % The input should be scaled to be between (-1, 1)
-
+signalScaled = r./max(max(abs(r))); % The input should be scaled to be between (-1, 1)
 
 % Measurement
-Jules_Dual_1430_1445_Generate(signal, signalRMS); % Load signal in AWG
+Jules_Dual_1430_1445_Generate(signalScaled, signalRMS); % Load signal in AWG
 % pause(0.2); % Wait to remove eventual transient in system and AWG
 [u,y] = Dual_1430_1445_Measure(length(r),1,[]); 
 % measurements acquisition, only considering one period because the

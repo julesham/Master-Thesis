@@ -9,6 +9,7 @@ function [y,u] = SYS_WH(r)
     y = filter(b2,a2,z);    
     
 %     Add noise
+     u = r;
      u = r + 3e-3*randn(size(r));
      y = y + 3e-3*randn(size(r));
 end

@@ -13,7 +13,7 @@
     - creation of 2 test systems (SNL and WH)
     -  uj = Q*(uj + e); works better for SNL, but fails on WH
 ** 17 Feb 2015
-    - Feedback without BLA works better -> because BLA is only defined on little frequency band, cannot compensate!
+    - Feedback without BLA works better -> because BLA is only defined on little frequency band, cannot compensate outside of it!
     - Thank note : filterbuddy FTW.
 ** 18 Feb 2015
     - To get BLA out of the excited band 
@@ -50,5 +50,10 @@
     * try Y_ref = K*U_ref and compare with BLA
     * tickler + parametric
     * non-linear identification
-
+** 8 Apr 2015
+    * Sync problem will haunt you until the end of time.
+    * EVERY measurement should be synced to a standard one.
+        * every realisation of BLA
+        * every realisation of ILC identification
+        * every iteration of ILC
 

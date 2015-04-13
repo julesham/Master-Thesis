@@ -16,3 +16,7 @@
 ** PA8
     - rms 0.5 fILC = 1/10
     -  multiple ILC realisations
+** BLA 7 Apr 11h11
+    - rms 0.5 fILC = 1/10
+** BLA 9 Apr 15h05 & ILC 9 Apr 15h12 (and now, everything is synced!)
+    - rms 0.5 fILC = 1/10

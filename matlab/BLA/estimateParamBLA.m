@@ -1,6 +1,6 @@
 function [B, A, Cost] = estimateParamBLA(BLA,ExcitedHarm,N,naBla,nbBla)
 % [B, A, Cost] = estimateBLA(BLA,ExcitedHarm,N,naBla,nbBla)
-% Estimate parametric TF from FRF Measurements Given by NL_Robust_
+% Estimate parametric TF from FRF Measurements Given by NL_Robust_Anal
     F = max(ExcitedHarm);
     
     data.Y		=	BLA.mean(ExcitedHarm); % ny x F 

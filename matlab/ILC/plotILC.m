@@ -28,7 +28,7 @@ figure('name','ILC : Frequency Domain');
 
 subplot(211); 
     hold all;
-    freq = fftshift((0:time.N-1)/time.N)-1/2;
+    freq = ((0:time.N-1)/time.N);
     plot(freq,(db(fft(y_ref)/sqrt(time.N))),'o');
     plot(freq,(db(fft(yj)/sqrt(time.N))),'.');
     plot(freq,(db(fft(y1)/sqrt(time.N))),'.');

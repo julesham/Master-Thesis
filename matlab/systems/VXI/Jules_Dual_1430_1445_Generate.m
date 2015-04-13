@@ -10,4 +10,4 @@ AWG_SetVMax('g1',Vrms/std(Signal)*max(abs(Signal))) % AWG_SetVMax('g1',Vrms)
 AWG_SetAWGOn('g1','ON')                             % Turn AWG ON
 %// AUTORANGE THE ADC
 % ACQ_SetRange('*',9) % Input Range is 9 Volts
-ACQ_SetRange('*','AUTO') % Input Range is 9 Volts
+ACQ_SetRange('*','AUTO') % Input Range is automatic

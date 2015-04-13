@@ -25,14 +25,9 @@ for ii = 1:ILC_Measurements.iterations
       %%%
       
         if strcmp(DUT,'SYS_VXI')
-              if ii == 1
-                  % We first save the first realization, and will synchronize the
-                  % following ones with this one.
-                  u_first = um;
-                  r_first = uj;
-              else
-                  [um,yj] = compensateAWGDelay(um,yj,uj,u_first,r_first,ExcitedHarmILC);
-              end
+                     delay  = compensateAWGDelayv3(um,uj,ILC_Measurements.ExcitedHarmILC);
+                     um     = circshift(um,-delay);
+                     yj     = circshift(yj,-delay);
         end
 
         % Compute error

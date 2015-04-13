@@ -3,14 +3,13 @@
 % Jules Hammenecker, Vrije Universiteit Brussel
 %%%
 
-clear; close all; clc; tic; startupK6;
-
-BLAMeasurementEnabled = true;
+clear; close all; clc; tic; 
+% startupK6;
+% VXI_Init
+% cd('Z:\MA2\Master Thesis\matlab');
+% pause;
 
 %% Definitions
-% Definition of time 
-time.N = 4096;       % DEFAULT 2^12 , if changed, also change in VXI System Parameters
-time.fs = 10e6/2^2;
 
 % Definition of System
 
@@ -19,11 +18,12 @@ DUT = 'SYS_WH';           % Simulation
 % DUT = 'SYS_SNL';          % Simulation
 % DUT = 'SYS_W';             % Simulation
 
-if strcmp(DUT,'SYS_VXI')    
-    VXI_Init
-    cd('Z:\MA2\Master Thesis');
-    pause;
-end
+BLAMeasurementEnabled = true;
+
+% Definition of time 
+time.N = 4096;       % DEFAULT 2^12 , if changed, also change in VXI System Parameters
+time.fs = 10e6/2^2;
+
 % Frequency bands of interest (Normalised with respect to Nyquist Freq) and
 % rms
 
@@ -42,10 +42,17 @@ M = 10; % number of independent repeated experiments
 time.ts = 1/time.fs;
 time.t0 = time.N*time.ts;
 time.f0 = 1/time.t0;
-ExcitedHarmBLA = (1: floor(fmaxBLA*time.N/2) ).';
+
 
     %% Measurement Of BLA
-
+    
+    % Without Tickler
+    ExcitedHarmBLA = (1: floor(fmaxBLA*time.N/2) ).';
+    AmplitudeSpectrum = ones(size(ExcitedHarmBLA));
+    % With Tickler
+%     ExcitedHarmBLA = ( 1:floor(time.N/2)-1 ).';
+%     NmaxBLA = floor( fmaxBLA*time.N/2 );
+%     AmplitudeSpectrum = [ones(NmaxBLA,1); db2mag(-20)*ones(max(ExcitedHarmBLA)-NmaxBLA,1)];
     % 3 cases Possible : 
     % 1) Measurement is enabled : BLA is measured and data is saved
     % 2) Measurement is not enabled and it's the VXI : user has to choose
@@ -54,15 +61,15 @@ ExcitedHarmBLA = (1: floor(fmaxBLA*time.N/2) ).';
 
     if BLAMeasurementEnabled
         fprintf('Starting BLA Measurement..\n');
-        [BLA_Measurements] = measureBLA(DUT,ExcitedHarmBLA,rmsInput,time.N,T,P,M);
+        [BLA_Measurements] = measureBLA(DUT,ExcitedHarmBLA,AmplitudeSpectrum,rmsInput,time.N,T,P,M);
         
-        if strcmp(DUT,'SYS_WH')
+        if strcmp(DUT,'SYS_VXI')
             
             filenameBLA = ['BLA_PA_',datestr(now,'dd_mmm_HH'),'h',datestr(now,'MM')];
             save(filenameBLA,'time','BLA_Measurements');
         end
         
-    elseif strcmp(DUT,'SYS_WH') % if BLA Measurement is not enabled, choose a measurement file.
+    elseif strcmp(DUT,'SYS_VXI') % if BLA Measurement is not enabled, choose a measurement file.
             clear;
             filenameBLA = uigetfile('*.mat','Select the BLA you want to use for ILC Compensation.');
             load(filenameBLA);
@@ -86,8 +93,9 @@ ExcitedHarmBLA = (1: floor(fmaxBLA*time.N/2) ).';
     plotBLA;shg;    % Plot
 
 
-    
-
+%  naBla = 4;
+%  nbBla = 2;
+% [B, A, Cost] = estimateParamBLA(BLA_RO,ExcitedHarmBLA,time.N,naBla,nbBla);
 
 %% ILC
 fprintf('Starting ILC Compensation..\n');
@@ -98,7 +106,7 @@ fmaxILC = 1/20; % Best for Simulations
 % fmaxILC = 1/10; % Better for VXI
 
 iterationsILC = 10;
-ilcM = 10; % Number of realisations to measure ILC'er
+ilcM = 7; % Number of realisations to measure ILC'er
 rmsInput = BLA_Measurements.rms;
 DUT = BLA_Measurements.DUT;
 %%%
@@ -152,7 +160,7 @@ plotILC; shg;
 printOutput;
 
 % Dump (hihi) workspace when measuring with VXI
-if strcmp(DUT,'SYS_WH') % if we are measuring
+if strcmp(DUT,'SYS_VXI') % if we are measuring
      filename = ['ILC_PA_',datestr(now,'dd_mmm_HH'),'h',datestr(now,'MM')];
      save(filename,'time','ILC_Measurements','filenameBLA');
 

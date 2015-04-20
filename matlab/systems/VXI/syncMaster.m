@@ -1,7 +1,7 @@
 %%
 % Create Sync Master, all subsequent measurements will be synchronised to
 % this realisation
-%%
+%%%
 
 clc; clear; close all;
 

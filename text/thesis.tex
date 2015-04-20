@@ -1,0 +1,63 @@
+\title{Compensating a Power Amplifier using Iterative Learning Control : from Design to Realisation  }
+\author{Jules Hammenecker \\ Brussels Faculty of Engineering \\ Vrije Universiteit Brussel - Universit\'e Libre de Bruxelles}
+\date{2014-2015}
+
+\documentclass[a4paper,openright]{report}
+	
+	%%% FONTS %%%%
+	\usepackage{times}
+	\usepackage{a4wide}
+	%%% FIGURES %%%
+	\usepackage[pdftex]{graphicx}
+	\usepackage{caption,subcaption}
+	\usepackage{hyperref}
+	\usepackage{pgfplots,tikz}
+	\pgfplotsset{compat=newest}
+	\pgfplotsset{plot coordinates/math parser=false}
+		\newlength\figureheight 
+		\newlength\figurewidth 
+	\usetikzlibrary{external}
+	\tikzexternalize[prefix=tikz/]
+
+	%%% MATHS %%%
+	\usepackage[cmex10]{amsmath}
+	\usepackage{amsthm}
+	\usepackage{steinmetz}
+		\newtheorem{definition}{Definition}
+	%%% PDF %%%
+	\usepackage{hyperref}
+\begin{document}
+
+
+\maketitle
+
+\section*{Thank You Note}
+
+\begin{abstract}
+	
+\end{abstract}
+
+\tableofcontents
+
+\chapter{Introduction} 											
+	\input{introduction}
+\chapter{Using the BLA in ILC for DPD} 							
+	\input{BLA_ILC_DPD}
+\chapter{Simulation Results} 									
+	\input{simulation}		
+\chapter{Application on a Audio Valve Amplifier} 				
+	\input{measurements}
+	
+\chapter{Conclusion}
+
+
+\begin{thebibliography}
+	{09}
+	
+	\bibitem{sysid} R.~Pintelon, J.~Schoukens, \emph{System Identification : A Frequency Domain Approach - 2nd edition.}\hskip 1em plus 0.5em minus 0.4em\relax IEEE Press (2012). 
+
+	\bibitem{100ex} J.~Schoukens, R.~Pintelon, Y.~Rolain , \emph{Mastering System Identification in 100 Exercises.}\hskip 1em plus 0.5em minus 0.4em\relax IEEE Press (2012), 183-238. 
+
+\end{thebibliography}
+
+\end{document}

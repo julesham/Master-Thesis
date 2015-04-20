@@ -20,7 +20,7 @@ function [delay] = compensateAWGDelayv3(u,r,ExcitedHarm)
     % Computing the R./U Transfer function
     % Sync Master Realisation
     %%%
-   [phase_first, ExcitedHarm_first] = phase2sync();
+    [phase_first, ExcitedHarm_first] = phase2sync();
     % One can only compare the excited frequencies common to both
     % measurements
      ExcitedHarm = intersect(ExcitedHarm,ExcitedHarm_first);
@@ -54,6 +54,7 @@ end
 
 function [phase_first, ExcitedHarm_first] = phase2sync()
     load syncMaster; 
+%     u = circshift(u,[8 0]);
     UR_1 = fft(u)./fft(signal);
     UR_1 = UR_1(ExcitedHarm+1);         % trim unwanted frequencies
     phase_first = unwrap( angle(UR_1) );

@@ -35,7 +35,6 @@ subplot(211);
     xlabel('freq'); ylabel('Amplitude');
     legend('y_d = BLA(u\_ref)','y\_j','y1 = SYS(u\_ref)');
     title('Comparison y_d and y_j ');
-    ylim([min( db( fft(yj)/sqrt(time.N) ) ), 20  ])
 subplot(212);
     plot(freq,db(fft(e)/sqrt(time.N)),'.'); xlabel('freq'); ylabel('error');
     title('y_d - y_j') ;

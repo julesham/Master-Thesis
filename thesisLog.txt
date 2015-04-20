@@ -14,22 +14,22 @@
     -  uj = Q*(uj + e); works better for SNL, but fails on WH
 ** 17 Feb 2015
     - Feedback without BLA works better -> because BLA is only defined on little frequency band, cannot compensate outside of it!
-    - Thank note : filterbuddy FTW.
+    - Thank note : filter buddy FTW.
 ** 18 Feb 2015
     - To get BLA out of the excited band 
         1) parametric identification, but extrapolation is dangerous!
         2) Tickler tone, use small signal outside of band of interest, small -> less NL dist
 ** 23 Feb 2015
-    - Two BLA measurements compared with eachother have a difference of -40 dB, because of stochastic MS
+    - Two BLA measurements compared with each other have a difference of -40 dB, because of stochastic MS
         - adding a tickler should not increase this difference
     - Energy in main freq band should be the same!
 ** 24 Feb 2015
     - Wanted output should also be passed trough BLAT
 ** 02 Mar 2015
-    - Deprioritize the complete frequency band compensation, focussing on band of interest
+    - De-prioritize the complete frequency band compensation, focussing on band of interest
     - Added noise, affects performance but not stability , maybe because of low-pass effect of BLA only being defined in BOI and zero outside of this.
 ** 03 Mar 2015
-    - It works, but why? What nonlinear levels are acceptable?
+    - It works, but why? What non-linear levels are acceptable?
     - Comparison with other methods
     - Transient in ILC, add some periods
 ** 04 Mar 2015
@@ -41,9 +41,9 @@
     - Rik Pintelon : some measurements are delayed with one sample, so all measurements are not synchronized, averaging makes no sense!
 ** 16 Mar 2015
     - John Lataire : dude, you are an engineer, shift your data
-	- Jules : Ok John, it works now, halleluja!
+	- Jules : Ok John, it works now, hallelujah!
 ** 18 Mar 2015
-    - Measurements work! Check connections toroughly!
+    - Measurements work! Check connections thoroughly!
 ** 19 Mar 2015
     - Try with higher BW and different rms
 ** 23 Mar 2015 
@@ -56,4 +56,7 @@
         * every realisation of BLA
         * every realisation of ILC identification
         * every iteration of ILC
+** undefined Apr 2015 
+	* SyncMaster created, all measurement synced to this god.
+** 
 

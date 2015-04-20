@@ -1,9 +1,122 @@
 %
 % Chapter : Simulations
 %
-
 \section{ILC with BLA}
-	\subsection{Test on Different Systems}
+
+	\subsection{Proof of Concept}
+	Before constructing a solid framework for predistortion using ILC, a small number of simulations on test systems will be run to estimate the performance of this technique. A description of the systems will be given, followed by the measurement of their BLAs. The ILC compensation algorithm.
+
+	\subsubsection{Presentation of Test Systems}
+	\begin{description}
+			\item[The Static Nonlinearity] that obeys the function \verb+y = 10*tanh(x/5)+
+
+			 \item[The Wiener System] is a linear dynamic system followed by a static nonlinearity. The linear block is a Chebyshev filter and the nonlinearity is a $tanh()$ function. The MATLAB parameters of this system are as follows:
+			\begin{enumerate}
+			 	\item Input Block  : \verb+cheby1(1,1,2*1/15)+
+			 	\item Nonlinearity : \verb+5*tanh(x/5)+
+			 \end{enumerate} 
+
+			\item[The Wiener Hammerstein System] which is a static nonlinearity sandwiched between two linear dynamic blocks. This particular system consists of two discrete-time Chebyshev filters and a $tanh()$ function as nonlinearity.
+			The MATLAB parameters of this system are as follows:
+			\begin{enumerate}
+			 	\item Input Block  : \verb+cheby1(1,1,2*1/15)+
+			 	\item Nonlinearity : \verb+5*tanh(x/1.2)+
+			 	\item Output Block : \verb+cheby1(3,1,2*1/20)+
+			 \end{enumerate} 
+			 Additionally, measurement noise is simulated only on this system by adding zero-mean gaussian noise with $\sigma= 3.10^{-3}$
+	\end{description}
+
+	\subsubsection{Measuring the Best Linear Approximation}
+	In figure \ref{fig:sim_BLA}, the BLA of each test system is plotted. All measurements had the same parameters that can be found in table 25 independent realisations, 2 measurement periods, 1 transient period and input signal rms of $0.3$.
+
+	\begin{table}
+	\renewcommand{\arraystretch}{1.3} \centering \caption{Parameters of multisine for robust measurement.} \label{robustparam} 
+	\begin{tabular}
+		{|c|c|} \hline Realizations M & 10\\
+		\hline Periods P & 2\\
+		\hline Excited Bandwith  & 0 to 0.1 $\frac{cycles}{sample}$  \\
+		\hline Number of samples N & 4096\\
+		\hline Multisine rms & 0.3 \\
+		\hline 
+	\end{tabular}
+	\end{table}
+
+	\begin{figure}
+        \centering
+        \begin{subfigure}[b]{0.3\textwidth}
+            \centering
+            \setlength\figureheight{3cm} 
+			\setlength\figurewidth{0.5\linewidth}
+			\input{images/BLA_SNL.tikz}
+
+        \end{subfigure}%
+        ~ 
+        \begin{subfigure}[b]{0.3\textwidth}
+        	\centering
+            \setlength\figureheight{3cm} 
+			\setlength\figurewidth{0.5\linewidth}
+			\input{images/BLA_W.tikz}
+        \end{subfigure}
+        ~ 
+        \begin{subfigure}[b]{0.3\textwidth}
+        	\centering
+            \setlength\figureheight{3cm} 
+			\setlength\figurewidth{0.5\linewidth}
+			\input{images/BLA_WH.tikz}
+        \end{subfigure}
+        \caption{Best Linear Approximation of the test systems. BLA in black, total variance in red, stochastic nonlinear distortion in blue and noise variance in green. }
+        \label{fig:sim_BLA}
+\end{figure}
+	
+	\subsubsection{Using the Best Linear Approximation in Iterative Learning}
+	The BLA measured in the previous section are now used in the system inversion ILC algorithm. The BLAs are not fitted to models, but instead the FRF is just inverted at each frequency. Because the FRF is not known outside of the measured frequencies, the inverse is put to zero there so it does not influence the learning \footnote{This means that outside of the measured frequencies, no compensation can occur. Therefore, it is only sensible to look at the results in the measured band.}. This is equivalent to having an ideal Q-filter of 1 in the band of interest and 0 outside. As known (\textbf{ref to intro}), this is helpful for the stability and robustness of the algorithm.
+
+			\begin{figure}
+				\centering
+		        \begin{subfigure}[b]{0.3\textwidth}
+		            \centering
+		            \setlength\figureheight{3cm} 
+					\setlength\figurewidth{0.5\linewidth}
+					\input{images/outputspec_SNL.tikz}
+
+		        \end{subfigure}%
+		        ~ 
+		        \begin{subfigure}[b]{0.3\textwidth}
+		        	\centering
+		            \setlength\figureheight{3cm} 
+					\setlength\figurewidth{0.5\linewidth}
+					\input{images/outputspec_SNL.tikz}
+		        \end{subfigure}
+		        ~ 
+		        \begin{subfigure}[b]{0.3\textwidth}
+		        	\centering
+		            \setlength\figureheight{3cm} 
+					\setlength\figurewidth{0.5\linewidth}
+					\input{images/outputspec_SNL.tikz}
+		        \end{subfigure}
+				\caption{Comparison of system output before and after applying ILC to the input signal in the frequency domain. Uncompensated output in red and compensated output in green.}
+				\label{fig:sim_outputspec_SNL}
+			\end{figure}
+
+	Figure \ref{fig:sim_outputspec_SNL} shows the output spectrum after applying ILC for 10 iterations giving as wanted output a multisine filtered (bandwith = $0$ to $0.05 f/f_s$) trough the BLA.  The nonlinear spectral regrowth of the first iteration (red) is totally removed in the last iteration (green). Outside of the linear band, the amplitude reaches the noise levels or computer precision in the noiseless cases.
+	\textbf{SHOW ILC ERROR DECREASING at each iterations}
+
+	\subsubsection{Estimating the Digital Predistorter}
+
+	Iterative Learning created in the previous step inputs that give a linear output to the system. A iterative algorithm is not well suited for application in predistortion. A digital predistorter is a system, not an iterative algorithm. In this step, the whole ILC algorithm  will be modelled as a nonlienar system. This is using the ILC reference outputs as input of the DPD, and the converged ILC inputs as output of the DPD.
+	
+	A Wiener system has been estimated for the DPD with the results plotted in figure \ref{fig:validation}.
+	There is a gain with respect to non-compensated input (about $-10dB$), but the it is not as effective as the real ILC. 
+	\begin{figure}
+		\centering
+		\setlength\figureheight{3cm} 
+		\setlength\figurewidth{0.5\linewidth}
+		\input{images/valid_WH.tikz}
+		\caption{Output spectrum of system.}
+		\label{fig:validation}
+	\end{figure}
+
+
 	\subsection{Influence of Noise}
 	\subsection{Study of Convergence}
 	\subsection{Compensate to Static Gain or BLA?}

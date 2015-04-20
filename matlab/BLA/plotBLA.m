@@ -1,3 +1,4 @@
+function plotBLA(BLA_Measurements,BLA_RO,U_BLA,Y_BLA)
 N = BLA_Measurements.N;
 ExcitedHarmBLA = BLA_Measurements.ExcitedHarm;
 %% Figures

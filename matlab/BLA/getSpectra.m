@@ -1,4 +1,4 @@
-function [Yall,Uall,Rall,U_ref_all] = processBLAMeasurements(BLA_Measurements)
+function [Yall,Uall,Rall,U_ref_all] = getSpectra(BLA_Measurements)
     % * Syntax *
     % [Yall,Uall,Rall,U_ref_all] = processBLAMeasurements(BLA_Measurements)
     %

@@ -38,10 +38,7 @@ function [delay] = compensateAWGDelayv2(u,r,u_first,r_first,ExcitedHarm)
     delay     = round(p(1));
     fprintf('Delay Compensation : %g\n',delay)
 end
-%
-% Subfunction
-%
-function
+
 % compensate for delay
 % u_out = circshift(u,[-delay 0 ]);
 % y_out = circshift(y,[-delay 0]);

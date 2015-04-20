@@ -1,35 +1,32 @@
-function [BLA, p] = hammer_estim(ILC_Measurements)
+function [BLA, p] = wiener_estim(ILC_Measurements)
     %
     %  Making a Standalone DPD
     %
-    % Estimating a Hammerstein System  
+    % Estimating a Wiener System  
     %  y_ref    ->    uj
-    % ---|NL|---|LIN|---
+    % ---|LIN|---|NL|---
     % (u)     (w)     (y)
     time.fs = 10e6/2^2;
     [~, time.N] = size(ILC_Measurements.u_ref);
     %% Step 1 : LIN = BLA
     BLA = linearPart(ILC_Measurements);
-    %% Step 2 : SNL is function f that satisfies f(y_ref) = w;
-    % Compute w
+    
+    %% Step 2 : SNL is function f that satisfies f( BLA(u) ) = y;
     M = ILC_Measurements.ilcM;
     W = zeros(time.N,M);
-    uj = squeeze( ILC_Measurements.uj(:,end,:) ).'; % N x M
-    Uj = fft(uj);
+    y_ref = ILC_Measurements.y_ref.'; % N x M
+    Y_ref = fft(y_ref);
     for mm = 1:M
-        W(ILC_Measurements.ExcitedHarmILC+1,mm) = (BLA.mean.^-1).'.*Uj(ILC_Measurements.ExcitedHarmILC+1,mm);
+        W(ILC_Measurements.ExcitedHarmILC+1,mm) = BLA.mean.'.*Y_ref(ILC_Measurements.ExcitedHarmILC+1,mm);
     end
     w     = 2*real(ifft(W));
-    
-    
-    
-    y_ref = ILC_Measurements.y_ref.';
-    p     = polyfit(y_ref,w,4);
+    y     = squeeze(ILC_Measurements.uj(:,end,:)).';
+    p     = polyfit(w,y,4);
     
     %
     %
     %
-    figure('Name','Hammerstein');
+    figure('Name','Wiener');
     hold all;
     freq = ILC_Measurements.ExcitedHarmILC./time.N*time.fs;
     subplot(2,2,1); plot(freq,db(BLA.mean),freq,db(BLA.stdNL)); title('BLA DPD Amplitude');
@@ -42,6 +39,7 @@ end
 function BLA = linearPart(ILC_Measurements)
     % ILC_Measurements.y_ref is M x N 
     y_ref   = ILC_Measurements.y_ref;
+    u_ref   = ILC_Measurements.u_ref;
     [M ,~]  = size(y_ref);
     
     % ILC_Measurements.uj is  M x iter x N, we select the last iteration
@@ -49,11 +47,13 @@ function BLA = linearPart(ILC_Measurements)
 
 
     % Convert to frequency domain
+    R = fft(u_ref,[],2);
     U = fft(y_ref,[],2);
     Y = fft(uj,[],2);
 
     % Select Excited frequencies
     ExcitedHarm = ILC_Measurements.ExcitedHarmILC;
+    Rexc = R(:,ExcitedHarm+1);
     Uexc = U(:,ExcitedHarm+1);
     Yexc = Y(:,ExcitedHarm+1);
     
@@ -62,9 +62,14 @@ function BLA = linearPart(ILC_Measurements)
     % replicating the same period twice, FrequencyDomainToolbox does not allow single period
     % measurements
     F = length(ExcitedHarm);
-    Yall = nan(M,2,F);  Uall = nan(M,2,F);
+    Yall = nan(M,2,F);  
+    Uall = nan(M,2,F); 
+    Rall = nan(M,2,F);
+    
+    Rall(:,1,:) = Rexc; Rall(:,2,:) = Rexc;
     Yall(:,1,:) = Yexc; Yall(:,2,:) = Yexc;
     Uall(:,1,:) = Uexc; Uall(:,2,:) = Uexc;
+    
 
-    BLA = Robust_NL_Anal(Yall, Uall,Uall);% where Yall, Uall are  M x P x F matrices of output, input spectra
+    BLA = Robust_NL_Anal(Yall, Uall, Rall);% where Yall, Uall are  M x P x F matrices of output, input spectra
 end

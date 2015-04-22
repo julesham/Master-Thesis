@@ -5,18 +5,18 @@
 % Definition of MODEL struct
 % MODEL.type = WFIR / Wiener / HFIR / NLFIR / NARMA
 % MODEL.parameters ; vector will all parameters
-% y = response(MODEL,u) gives response of model to input u
 % y = steadyStateResponse(MODEL,u) gives the second of two periods response model to input u
 close all;
 
 N = time.N; 
 ExcitedHarmILC = ILC_Measurements.ExcitedHarmILC;
-DUT = 'SYS_WH';
+DUT = 'SYS_H';
 P = 1; 
 T = 3;
+
 %% Validation
 % Get reference output
-y_ref = ILC_Measurements.y_ref(1,:).';
+y_ref = ILC_Measurements.y_ref(2,:).';
 % Real Data (Converged I/O and )
 uj = squeeze(ILC_Measurements.uj(1,end,:));
 yj = squeeze(ILC_Measurements.yj(1,end,:));
@@ -77,6 +77,12 @@ signal = repmat(ujOptWFIR,T+P,1);
 [ yjoptWFIR, ~ ] = feval(DUT,signal);
 yjoptWFIR(1:T*N) = []; % eliminate transients
 
+%%
+u = CalcMultisine(ExcitedHarmILC,N);
+ujOptWFIR = steadyStateResponse(WFIR,y_ref);
+
+
+%%
 % Response of FIR
 ujOptHFIR = steadyStateResponse(HFIR,y_ref);
 % Pass trough system

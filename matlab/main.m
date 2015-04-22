@@ -14,9 +14,10 @@ clear; close all; clc; tic;
 % Definition of System
 
 % DUT = 'SYS_VXI';          % Actuates the system
-DUT = 'SYS_WH';           % Simulation
+% DUT = 'SYS_WH';           % Simulation
 % DUT = 'SYS_SNL';          % Simulation
 % DUT = 'SYS_W';             % Simulation
+DUT = 'SYS_H';             % Simulation
 
 BLAMeasurementEnabled = true;
 ILCtoStaticGain = false; % ILC to static gain or to BLA
